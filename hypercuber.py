@@ -24,7 +24,7 @@ class HyperCube():
     def load_2d_data(self, datatype="nhi"):
         
         if datatype == "nhi":
-            self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHI_VLSRSRCORR-90+90kms.fits"
+            self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
         
         self.twoddata = fits.getdata(self.twoddata_fn)
         
