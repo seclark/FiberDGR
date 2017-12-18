@@ -22,11 +22,13 @@ class HyperCube():
         self.hypercube = np.zeros((ny, nx, nvel, ntheta), np.float_)
         self.weights_hypercube = np.zeros((ny, nx, nvel, ntheta), np.float_)
         
-    def load_2d_data(self, datatype="nhi"):
+    def load_2d_data(self, datatype="nhi", local=False):
         
         if datatype == "nhi":
-            #self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
-            self.twoddata_fn = "/Users/susanclark/Dropbox/NHImaps/GALFA-HI_NHImap_SRcorr_VLSR-090+0090kms.fits"
+            if local:
+                self.twoddata_fn = "/Users/susanclark/Dropbox/NHImaps/GALFA-HI_NHImap_SRcorr_VLSR-090+0090kms.fits"
+            else:
+                self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
         
         self.twoddata = fits.getdata(self.twoddata_fn)
         
