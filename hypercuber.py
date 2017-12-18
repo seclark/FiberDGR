@@ -25,9 +25,10 @@ class HyperCube():
         
         if datatype == "nhi":
             self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHI_VLSRSRCORR-90+90kms.fits"
-        self.twoddata = fits.getdata(twoddata_fn)
         
-    def tabulate_per_vel_theta(vel_i=0, theta_i=0):
+        self.twoddata = fits.getdata(self.twoddata_fn)
+        
+    def tabulate_per_vel_theta(vel_i=0, theta_i=0, verbose=False):
         """
         for a given vel, theta slice, step through and record data
         """
@@ -45,6 +46,9 @@ class HyperCube():
         nonzeroy = nonzeroyx[0]
         nonzerox = nonzeroyx[1]
         
+        if verbose:
+            print("There are {} nonzero indices in this map".format(len(nonzerox)))
+        
         for (_y, _x) in zip(nonzeroy, nonzerox):
             centerval = velthet[_y, _x]
             
@@ -58,4 +62,4 @@ class HyperCube():
 #test
 hcube = HyperCube()
 hcube.load_2d_data(datatype="nhi")
-hcube.tabulate_per_vel_theta(vel_i=0, theta_i=0)
+hcube.tabulate_per_vel_theta(vel_i=0, theta_i=0, verbose=True)
