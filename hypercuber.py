@@ -72,7 +72,7 @@ class HyperCube():
                 self.smallstartx1 = 0
                 self.smallstartx2 = self.cubehalfx - _x
                 
-            if self.stopx == maxnx:
+            if self.stopx == self.maxnx:
                 self.RAedgeflag = True
                 self.startx1 = 0
                 self.stopx1 = self.cubehalfx - self.maxnx + _x
@@ -90,7 +90,7 @@ class HyperCube():
             else:
                 self.smallstarty = 0
             
-            if (_y + self.cubehalfy) > maxny:
+            if (_y + self.cubehalfy) > self.maxny:
                 self.smallstopy = self.cubehalfy*2 + 1 - (_y + self.cubehalfy - self.maxny)
             else:
                 self.smallstopy = self.cubehalfy*2 + 1
