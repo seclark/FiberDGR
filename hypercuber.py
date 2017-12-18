@@ -61,7 +61,7 @@ class HyperCube():
             # deal with edges
             if startx == 0:
                 # deal with RA wrap
-                self.edgeflag = True
+                self.RAedgeflag = True
                 startx1 = 0
                 stopx1 = _x + self.cubehalfx # maybe +1
                 startx2 = maxnx - (_x - self.cubehalfx)
@@ -72,7 +72,7 @@ class HyperCube():
                 smallstartx2 = self.cubehalfx - _x
                 
             if stopx == maxnx:
-                self.edgeflag = True
+                self.RAedgeflag = True
                 startx1 = 0
                 stopx1 = self.cubehalfx - maxnx + _x
                 startx2 = _x - self.cubehalfx
@@ -86,12 +86,24 @@ class HyperCube():
             
             print("centerval is ", centerval)
             
-            if self.edgeflag:
-                self.hypercube[starty:stopy, smallstartx1:stopx, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx1:stopx]
-                self.hypercube[starty:stopy, startx1:stopx, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx2:maxnx]
+            # Are you sitting on the edge in DEC?
+            if (_y - self.cubehalfy) < 0:
+                self.smallstarty = self.cubehalfy - _y
+            else:
+                self.smallstarty = 0
+            
+            if (_y + self.cubehalfy) > maxny:
+                self.smallstopy = self.cubehalfy*2 + 1 - (_y + self.cubehalfy - maxny)
+            else:
+                self.smallstopy = self.cubehalfy*2 + 1
+                
+            
+            if self.RAedgeflag:
+                self.hypercube[smallstarty:smallstopy, smallstartx1:smallstartx2, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx1:stopx]
+                self.hypercube[smallstarty:smallstopy, smallstartx2:, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx2:maxnx]
             
             else:
-                self.hypercube[:, :, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx:stopx]
+                self.hypercube[smallstarty:smallstopy, :, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx:stopx]
             
 #test
 hcube = HyperCube()
