@@ -52,6 +52,7 @@ class HyperCube():
         for (_y, _x) in zip(nonzeroy, nonzerox):
             centerval = velthet[_y, _x]
             
+            print(_x, self.cubehalfx)
             startx = np.int(np.max(0, _x - self.cubehalfx))
             stopx = np.int(np.min(maxnx, _x + self.cubehalfx))
             starty = np.int(np.max(0, _y - self.cubehalfy))
