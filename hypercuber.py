@@ -54,9 +54,9 @@ class HyperCube():
             
             print(_x, self.cubehalfx)
             self.startx = np.int(max(0, _x - self.cubehalfx))
-            self.stopx = np.int(min(maxnx, _x + self.cubehalfx + 1))
+            self.stopx = np.int(min(self.maxnx, _x + self.cubehalfx + 1))
             self.starty = np.int(max(0, _y - self.cubehalfy))
-            self.stopy = np.int(min(maxny, _y + self.cubehalfy + 1))
+            self.stopy = np.int(min(self.maxny, _y + self.cubehalfy + 1))
             
             self.RAedgeflag = False
             # deal with edges
