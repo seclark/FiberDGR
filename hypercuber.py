@@ -53,12 +53,15 @@ class HyperCube():
             centerval = velthet[_y, _x]
             
             print(_x, self.cubehalfx)
-            startx = np.int(np.max(0, _x - self.cubehalfx))
+            startx = np.int(max(0, _x - self.cubehalfx))
             stopx = np.int(np.min(maxnx, _x + self.cubehalfx))
             starty = np.int(np.max(0, _y - self.cubehalfy))
             stopy = np.int(np.min(maxny, _y + self.cubehalfy))
             
             print(startx, stopy, starty, stopy)
+            
+            print("centerval is ", centerval)
+            
             
             self.hypercube[starty:stopy, startx:stopx, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx:stopx]
             
