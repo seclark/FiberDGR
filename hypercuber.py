@@ -16,8 +16,8 @@ class HyperCube():
         self.nvel = nvel
         self.ntheta = ntheta
         
-        self.cubehalfx = np.floor(nx/2.0)
-        self.cubehalfy = np.floor(ny/2.0)
+        self.cubehalfx = np.int(np.floor(nx/2.0))
+        self.cubehalfy = np.int(np.floor(ny/2.0))
         
         self.hypercube = np.zeros((nx, ny, nvel, ntheta), np.float_)
         
