@@ -21,6 +21,12 @@ class HyperCube():
         
         self.hypercube = np.zeros((nx, ny, nvel, ntheta), np.float_)
         
+    def load_2d_data(datatype="nhi"):
+        
+        if datatype == "nhi":
+            self.twoddata_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHI_VLSRSRCORR-90+90kms.fits"
+        self.twoddata = fits.getdata(twoddata_fn)
+        
     def tabulate_per_vel_theta(vel_i=0, theta_i=0):
         """
         for a given vel, theta slice, step through and record data
@@ -47,4 +53,9 @@ class HyperCube():
             starty = np.max(0, _y - self.cubehalfy)
             stopy = np.min(maxny, _y + self.cubehalfy)
             
-            self.hypercube[starty:stopy, startx:stopx, vel_i, theta_i] = centerval*velthet[starty:stopy, startx:stopx]
+            self.hypercube[starty:stopy, startx:stopx, vel_i, theta_i] = centerval*self.twoddata[starty:stopy, startx:stopx]
+            
+#test
+hcube = HyperCube()
+hcube.load_2d_data(datatype="nhi")
+hcube.tabulate_per_vel_theta(vel_i=0, theta_i=0)
