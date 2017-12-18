@@ -54,9 +54,9 @@ class HyperCube():
             
             print(_x, self.cubehalfx)
             startx = np.int(max(0, _x - self.cubehalfx))
-            stopx = np.int(np.min(maxnx, _x + self.cubehalfx))
-            starty = np.int(np.max(0, _y - self.cubehalfy))
-            stopy = np.int(np.min(maxny, _y + self.cubehalfy))
+            stopx = np.int(min(maxnx, _x + self.cubehalfx))
+            starty = np.int(max(0, _y - self.cubehalfy))
+            stopy = np.int(min(maxny, _y + self.cubehalfy))
             
             print(startx, stopy, starty, stopy)
             
