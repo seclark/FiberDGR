@@ -40,6 +40,9 @@ class HyperCube():
         velthet_fn = velthet_root + "GALFA_HI_W_"+velrangestr+"_newhdr_SRcorr_w75_s15_t70_theta_"+str(theta_i)+".fits"
         velthet = fits.getdata(velthet_fn)
         
+        velthet = np.zeros(velthet.shape)
+        velthet[5, 200] = 1.
+        
         self.maxny, self.maxnx = velthet.shape
         
         nonzeroyx = np.nonzero(velthet)
