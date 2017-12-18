@@ -89,14 +89,14 @@ class HyperCube():
             
             # Are you sitting on the edge in DEC?
             if (_y - self.cubehalfy) < 0:
-                self.smallstarty = self.cubehalfy - _y
+                smallstarty = self.cubehalfy - _y
             else:
-                self.smallstarty = 0
+                smallstarty = 0
             
             if (_y + self.cubehalfy) > maxny:
-                self.smallstopy = self.cubehalfy*2 + 1 - (_y + self.cubehalfy - maxny)
+                smallstopy = self.cubehalfy*2 + 1 - (_y + self.cubehalfy - maxny)
             else:
-                self.smallstopy = self.cubehalfy*2 + 1
+                smallstopy = self.cubehalfy*2 + 1
                 
             
             if self.RAedgeflag:
