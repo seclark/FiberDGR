@@ -10,11 +10,12 @@ class HyperCube():
     """
     hyper cube class, dimensions (ra x dec x vel x theta)
     """
-    def __init__(self, nx=101, ny=101, nvel=21, ntheta=165):
+    def __init__(self, nx=101, ny=101, nvel=21, ntheta=165, singlecube=False):
         self.nx = nx
         self.ny = ny
         self.nvel = nvel
         self.ntheta = ntheta
+        self.singlecube = singlecube
         
         self.cubehalfx = np.int(np.floor(nx/2.0))
         self.cubehalfy = np.int(np.floor(ny/2.0))
@@ -32,6 +33,21 @@ class HyperCube():
         
         self.twoddata = fits.getdata(self.twoddata_fn)
         
+    def load_nhi_rad_857(self, local=False):
+        if self.singlecube is True:
+            print("WARNING: only processing a single 2d data cube")
+        else:
+            self.hypercube_nhi = np.zeros((ny, nx, nvel, ntheta), np.float_)
+            self.hypercube_rad = np.zeros((ny, nx, nvel, ntheta), np.float_)
+            self.hypercube_857 = np.zeros((ny, nx, nvel, ntheta), np.float_)
+            
+        self.nhi_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
+        self.rad_fn = "/disks/jansky/a/users/goldston/susan/Planck/COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits"
+        self.P857_fn = "/disks/jansky/a/users/goldston/susan/Planck/HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits"
+        
+        self.nhi = fits.getdata(self.nhi_fn)
+        self.radiance = fits.getdata(self.radiance)
+        self.Planck857 = fits.getdata(self.P857_fn)
     
     def load_mask(self, mask=None):
         """
@@ -117,22 +133,46 @@ class HyperCube():
             
             # set into cubes, dealing w/ RA wrap
             if self.RAedgeflag:
-                self.hypercube[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx1:self.stopx1]
-                self.hypercube[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx2:self.maxnx]
                 
+                # single 2d data into hypercube
+                if self.singlecube:
+                    self.hypercube[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx1:self.stopx1]
+                    self.hypercube[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx2:self.maxnx]
+                
+                # nhi, radiance, 857 into separate hypercubes
+                else:
+                    self.hypercube_nhi[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.nhi[self.starty:self.stopy, self.startx1:self.stopx1]
+                    self.hypercube_nhi[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.nhi[self.starty:self.stopy, self.startx2:self.maxnx]
+                    self.hypercube_rad[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.radiance[self.starty:self.stopy, self.startx1:self.stopx1]
+                    self.hypercube_rad[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.radiance[self.starty:self.stopy, self.startx2:self.maxnx]
+                    self.hypercube_857[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx1:self.stopx1]
+                    self.hypercube_857[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx2:self.maxnx]
+            
+                # save weights
                 self.weights_hypercube[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval
             
             # otherwise, proceed
             else:
-                self.hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx:self.stopx]
-                
+                if self.singlecube:
+                    self.hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.twoddata[self.starty:self.stopy, self.startx:self.stopx]
+                else:
+                    self.hypercube_nhi[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.nhi[self.starty:self.stopy, self.startx:self.stopx]
+                    self.hypercube_rad[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.radiance[self.starty:self.stopy, self.startx:self.stopx]
+                    self.hypercube_857[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx:self.stopx]
+                    
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
                 
                 
-#test
-hcube = HyperCube()
-hcube.load_2d_data(datatype="nhi")
-hcube.tabulate_per_vel_theta(vel_i=0, theta_i=0, verbose=False)
+# run for nhi, radiance, 857
+hcube = HyperCube(singlecube=False)
+hcube.load_nhi_rad_857(local=False)
 
-np.save("hypercube_test.npy", hcube.hypercube)
+for _v in np.arange(21):
+    print("finished with velocity {} of 21".format(_v + 1))
+    for _thet in np.arange(165):
+        hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
+
+np.save("hypercube_nhi.npy", hcube.hypercube_nhi)
+np.save("hypercube_rad.npy", hcube.hypercube_rad)
+np.save("hypercube_857.npy", hcube.hypercube_857)
 
