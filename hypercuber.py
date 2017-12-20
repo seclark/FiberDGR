@@ -20,8 +20,9 @@ class HyperCube():
         self.cubehalfx = np.int(np.floor(nx/2.0))
         self.cubehalfy = np.int(np.floor(ny/2.0))
         
-        self.hypercube = np.zeros((ny, nx, nvel, ntheta), np.float_)
-        self.weights_hypercube = np.zeros((ny, nx, nvel, ntheta), np.float_)
+        if self.singlecube:
+            self.hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
     def load_2d_data(self, datatype="nhi", local=False):
         
@@ -37,9 +38,9 @@ class HyperCube():
         if self.singlecube is True:
             print("WARNING: only processing a single 2d data cube")
         else:
-            self.hypercube_nhi = np.zeros((ny, nx, nvel, ntheta), np.float_)
-            self.hypercube_rad = np.zeros((ny, nx, nvel, ntheta), np.float_)
-            self.hypercube_857 = np.zeros((ny, nx, nvel, ntheta), np.float_)
+            self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+            self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+            self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
             
         self.nhi_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
         self.rad_fn = "/disks/jansky/a/users/goldston/susan/Planck/COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits"
