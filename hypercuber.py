@@ -47,7 +47,7 @@ class HyperCube():
         self.P857_fn = "/disks/jansky/a/users/goldston/susan/Planck/HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits"
         
         self.nhi = fits.getdata(self.nhi_fn)
-        self.radiance = fits.getdata(self.radiance)
+        self.radiance = fits.getdata(self.rad_fn)
         self.Planck857 = fits.getdata(self.P857_fn)
     
     def load_mask(self, mask=None):
