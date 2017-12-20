@@ -169,9 +169,10 @@ hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
 for _v in np.arange(21):
-    print("finished with velocity {} of 21".format(_v + 1))
     for _thet in np.arange(165):
         hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
+        
+    print("finished with velocity {} of 21".format(_v + 1))
 
 np.save("hypercube_nhi.npy", hcube.hypercube_nhi)
 np.save("hypercube_rad.npy", hcube.hypercube_rad)
