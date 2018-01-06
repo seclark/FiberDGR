@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import numpy as np
 from astropy.io import fits
+import time
 
 import sys 
 sys.path.insert(0, '../GalfaCuber/code')
@@ -168,11 +169,13 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-for _v in [4]: # of 21
-    for _thet in np.arange(80, 165): # of 165
+for _v in [5]: # of 21
+    for _thet in np.arange(80): # of 165
+        time0 = time.time()
         hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
+        time1 = time.time()
         
-        print("finished with velocity {} of 21, thet {} of 165".format(_v + 1, _thet + 1))
+        print("finished with velocity {} of 21, thet {} of 165. Took {} min.".format(_v + 1, _thet + 1, (time1-time0)/60.))
 
         np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_nhi[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet])
