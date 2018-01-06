@@ -170,7 +170,7 @@ hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
 for _v in [16]: # of 21
-    for _thet in np.arange(80): # of 165
+    for _thet in np.arange(80, 165): # of 165
         time0 = time.time()
         hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
         time1 = time.time()
