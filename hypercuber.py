@@ -180,4 +180,5 @@ for _v in [14]: # of 21
         np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_nhi[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
+        np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
 
