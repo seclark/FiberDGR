@@ -199,7 +199,7 @@ hcube.load_nhi_rad_857(local=False)
 
 for _v in [7]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(150, 165): # of 165
+    for _thet in np.arange(120, 150): # of 165
         time0 = time.time()
         hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
         time1 = time.time()
