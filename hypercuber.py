@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 from astropy.io import fits
 import time
+import os.path
 
 import sys 
 sys.path.insert(0, '../GalfaCuber/code')
@@ -163,8 +164,35 @@ class HyperCube():
                     self.hypercube_857[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx:self.stopx]
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
+    
+    def assemble_hcubes(self):
+        self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        
+        missing_vt_pair = 0
+        missing_ts_per_v = np.zeros(21)
+        
+        for _v in np.arange(21): 
+            for _thet in np.arange(165): 
                 
+                fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)
+                fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet)
+                fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet)
+                #fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet)
                 
+                if os.path.isfile(fn_nhi):
+                    self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
+                    self.hypercube_rad[:, :, _v, _thet] = np.load(fn_rad)
+                    self.hypercube_857[:, :, _v, _thet] = np.load(fn_857)
+                else:
+                    missing_vt_pair += 1
+                    missing_ts_per_v[_v] += 1
+
+        print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
+        print("Number of missing ts per v : {}".format(missing_ts_per_v))
+"""                
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
@@ -182,4 +210,7 @@ for _v in [11]: # of 21
         np.save("temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
+"""
 
+hcube = HyperCube(singlecube=False)
+hcube.assemble_hcubes()
