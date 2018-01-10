@@ -192,7 +192,8 @@ class HyperCube():
 
         print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
         print("Number of missing ts per v : {}".format(missing_ts_per_v))
-               
+
+"""               
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
@@ -210,7 +211,7 @@ for _v in [10]: # of 21
         np.save("temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
         np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
+"""
 
-
-#hcube = HyperCube(singlecube=False)
-#hcube.assemble_hcubes()
+hcube = HyperCube(singlecube=False)
+hcube.assemble_hcubes()
