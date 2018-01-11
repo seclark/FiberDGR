@@ -201,7 +201,7 @@ hcube.load_nhi_rad_857(local=False)
 
 for _v in [19]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(160, 165): # of 165
+    for _thet in np.arange(155, 160): # of 165
     
         if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)):
             print("v {}, t {} already exists".format(_v, _thet))
