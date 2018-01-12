@@ -199,7 +199,7 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-for _v in [11]: # of 21
+for _v in [10]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(125, 130): # of 165
     
