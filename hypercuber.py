@@ -195,7 +195,7 @@ class HyperCube():
 
             
 # run for nhi, radiance, 857
-
+"""
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
@@ -217,6 +217,6 @@ for _v in [19]: # of 21
             np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
             np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
 
-
+"""
 hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes()
