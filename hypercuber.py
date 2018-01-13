@@ -197,13 +197,13 @@ class HyperCube():
 
             
 # run for nhi, radiance, 857
-"""
+
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-for _v in [10]: # of 21
+for _v in [11]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(120, 125): # of 165
+    for _thet in np.arange(95, 100): # of 165
     
         if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)):
             print("v {}, t {} already exists".format(_v, _thet))
@@ -219,6 +219,6 @@ for _v in [10]: # of 21
             np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
             np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
 
-"""
+
 hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes()
