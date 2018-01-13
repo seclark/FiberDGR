@@ -189,6 +189,8 @@ class HyperCube():
                 else:
                     missing_vt_pair += 1
                     missing_ts_per_v[_v] += 1
+                    
+                    print("missing v = {}, t = {}".format(_v, _thet))
 
         print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
         print("Number of missing ts per v : {}".format(missing_ts_per_v))
