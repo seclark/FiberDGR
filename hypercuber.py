@@ -222,3 +222,9 @@ for _v in [16]: # of 21
 """
 hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes()
+
+np.save("hcubes/hypercube_nhi.npy", hcube.hypercube_nhi)
+np.save("hcubes/hypercube_rad.npy", hcube.hypercube_rad)
+np.save("hcubes/hypercube_857.npy", hcube.hypercube_857)
+
+
