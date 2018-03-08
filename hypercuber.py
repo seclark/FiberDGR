@@ -272,10 +272,10 @@ for _v in [0]: # of 21
         
             print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
 
-            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_nhi[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_rad[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_857[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.weights_hypercube[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_nhi[:, :, _v, _thet], hcube.bstart, hcube.bstop))
+            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_rad[:, :, _v, _thet], hcube.bstart, hcube.bstop))
+            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_857[:, :, _v, _thet], hcube.bstart, hcube.bstop))
+            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.weights_hypercube[:, :, _v, _thet], hcube.bstart, hcube.bstop))
 
 
 #hcube = HyperCube(singlecube=False)
