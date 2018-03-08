@@ -70,8 +70,9 @@ class HyperCube():
         """
         nhi_hdr = fits.getheader(self.nhi_fn)
         w_galfa = cutouts.make_wcs(nhi_hdr)
-        xs = np.arange(0, nx)
-        ys = np.arange(0, ny)
+        xs = np.arange(0, nhi_hdr["NAXIS1"])
+        ys = np.arange(0, nhi_hdr["NAXIS2"])
+        print(nhi_hdr["NAXIS1"])
         X, Y = np.meshgrid(xs, ys)
         ras, decs = cutouts.xys_to_radec(X.ravel(), Y.ravel(), w_galfa)
         ells, bees = cutouts.radecs_to_lb(ras, decs)
