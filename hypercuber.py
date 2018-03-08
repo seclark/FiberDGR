@@ -263,8 +263,8 @@ for _v in [0]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
-        if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)):
-            print("v {}, t {} already exists".format(_v, _thet))
+        if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bstart, bstop)):
+            print("v {}, t {}, bstart {}, bstop {} already exists".format(_v, _thet, bstart, bstop))
         else:
             time0 = time.time()
             hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop])
