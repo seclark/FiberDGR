@@ -3,10 +3,15 @@ import numpy as np
 from astropy.io import fits
 import time
 import os.path
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 import sys 
 sys.path.insert(0, '../GalfaCuber/code')
 import galfa_vel_helpers
+
+sys.path.insert(0, '../FITSHandling/code')
+import cutouts
 
 class HyperCube():
     """
@@ -58,8 +63,23 @@ class HyperCube():
         """
         if mask is not None:
             self.mask = np.isfinite(self.twoddata)
+            
+    def load_lats(self):
+        """
+        create a map of all b values in GALFA-HI footprint 
+        """
+        nhi_hdr = fits.getheader(self.nhi_fn)
+        w_galfa = cutouts.make_wcs(nhi_hdr)
+        xs = np.arange(0, nx)
+        ys = np.arange(0, ny)
+        X, Y = np.meshgrid(xs, ys)
+        ras, decs = cutouts.xys_to_radec(X.ravel(), Y.ravel(), w_galfa)
+        ells, bees = cutouts.radecs_to_lb(ras, decs)
+
+        self.ells = ells.reshape(X.shape)
+        self.bees = bees.reshape(X.shape)
         
-    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False):
+    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90]):
         """
         for a given vel, theta slice, step through and record data
         """
@@ -72,6 +92,14 @@ class HyperCube():
         velthet = fits.getdata(velthet_fn)
         
         self.maxny, self.maxnx = velthet.shape
+        
+        # set bcut, if any -- this means that anything outside of the bcut won't be stacked on. but anything inside window will still be stacked.
+        self.bstart = bcut[0]
+        self.bstop = bcut[1]
+        print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
+        
+        self.load_lats()
+        velthet[np.where((self.bees < self.bstart) & (self.bees > self.bstop))] = 0
         
         nonzeroyx = np.nonzero(velthet)
         nonzeroy = nonzeroyx[0]
@@ -194,37 +222,69 @@ class HyperCube():
 
         print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
         print("Number of missing ts per v : {}".format(missing_ts_per_v))
-
+        
+    def make_movies(self):
+        
+        dataroot = "data/"
+        #hcube_nhi = np.load(dataroot+"hypercube_nhi.npy")
+        hcube_rad = np.load(dataroot+"hypercube_rad.npy")
+        #hcube_857 = np.load(dataroot+"hypercube_857.npy")
+        
+        for _thet in np.arange(165): # of 165
+        
+            fig = plt.figure(facecolor="white", figsize=(12,7))
+        
+            for _i, _v in enumerate(np.arange(21)):
+                ax = fig.add_subplot(3, 7, _i + 1)
+                im = ax.imshow(hcube_rad[:, :, _v, _thet])
+                
+                #divider = make_axes_locatable(ax)
+                #cax = divider.append_axes("right", size="3%", pad=0.05)
+                #cbar = plt.colorbar(im, cax=cax)  
+                #cbar.outline.set_visible(False)
+                
+                ax.set_title("{}".format(_v))
+                ax.set_xticks([])
+                ax.set_yticks([])
+                
+            plt.suptitle("Radiance, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
+            plt.savefig("figures/allvel_rad_theta_{}.png".format(str(_thet).zfill(3)))
+            plt.close()
             
 # run for nhi, radiance, 857
-"""
+
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-for _v in [16]: # of 21
+bstart=0
+bstop=10
+
+for _v in [0]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(162, 165): # of 165
+    for _thet in np.arange(165): # of 165
     
         if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)):
             print("v {}, t {} already exists".format(_v, _thet))
         else:
             time0 = time.time()
-            hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False)
+            hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop])
             time1 = time.time()
         
             print("finished with velocity {} of 21, thet {} of 165. Took {} min.".format(_v + 1, _thet + 1, (time1-time0)/60.))
 
-            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_nhi[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet])
+            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_nhi[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet], hcube.bstart, hcube.bstop)
 
-"""
-hcube = HyperCube(singlecube=False)
-hcube.assemble_hcubes()
 
-np.save("hcubes/hypercube_nhi.npy", hcube.hypercube_nhi)
-np.save("hcubes/hypercube_rad.npy", hcube.hypercube_rad)
-np.save("hcubes/hypercube_857.npy", hcube.hypercube_857)
+#hcube = HyperCube(singlecube=False)
+#hcube.assemble_hcubes()
+
+#np.save("hcubes/hypercube_nhi.npy", hcube.hypercube_nhi)
+#np.save("hcubes/hypercube_rad.npy", hcube.hypercube_rad)
+#np.save("hcubes/hypercube_857.npy", hcube.hypercube_857)
+
+#hcube.make_movies()
 
 
