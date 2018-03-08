@@ -66,20 +66,24 @@ class HyperCube():
             
     def load_lats(self):
         """
-        create a map of all b values in GALFA-HI footprint 
+        create or load a map of all b values in GALFA-HI footprint 
         """
-        nhi_hdr = fits.getheader(self.nhi_fn)
-        w_galfa = cutouts.make_wcs(nhi_hdr)
-        xs = np.arange(0, nhi_hdr["NAXIS1"])
-        ys = np.arange(0, nhi_hdr["NAXIS2"])
-        X, Y = np.meshgrid(xs, ys)
-        ras, decs = cutouts.xys_to_radec(X.ravel(), Y.ravel(), w_galfa)
-        ells, bees = cutouts.radecs_to_lb(ras, decs)
-
-        self.ells = ells.reshape(X.shape)
-        self.bees = bees.reshape(X.shape)
+        if os.path.isfile("all_galactic_latitudes_galfanhi.npy"):
+            self.bees = np.load("all_galactic_latitudes_galfanhi.npy")
         
-        np.save("all_galactic_latitudes_galfanhi.npy", self.bees)
+        else:
+            nhi_hdr = fits.getheader(self.nhi_fn)
+            w_galfa = cutouts.make_wcs(nhi_hdr)
+            xs = np.arange(0, nhi_hdr["NAXIS1"])
+            ys = np.arange(0, nhi_hdr["NAXIS2"])
+            X, Y = np.meshgrid(xs, ys)
+            ras, decs = cutouts.xys_to_radec(X.ravel(), Y.ravel(), w_galfa)
+            ells, bees = cutouts.radecs_to_lb(ras, decs)
+
+            self.ells = ells.reshape(X.shape)
+            self.bees = bees.reshape(X.shape)
+        
+            np.save("all_galactic_latitudes_galfanhi.npy", self.bees)
         
     def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90]):
         """
@@ -102,7 +106,8 @@ class HyperCube():
         
         self.load_lats()
         print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
-        velthet[np.where((self.bees < self.bstart) & (self.bees > self.bstop))] = 0
+        velthet[np.where(self.bees < self.bstart)] = 0 
+        velthet[np.where(self.bees > self.bstop)] = 0
         print("after b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         nonzeroyx = np.nonzero(velthet)
         nonzeroy = nonzeroyx[0]
