@@ -72,7 +72,6 @@ class HyperCube():
         w_galfa = cutouts.make_wcs(nhi_hdr)
         xs = np.arange(0, nhi_hdr["NAXIS1"])
         ys = np.arange(0, nhi_hdr["NAXIS2"])
-        print(nhi_hdr["NAXIS1"])
         X, Y = np.meshgrid(xs, ys)
         ras, decs = cutouts.xys_to_radec(X.ravel(), Y.ravel(), w_galfa)
         ells, bees = cutouts.radecs_to_lb(ras, decs)
@@ -271,12 +270,12 @@ for _v in [0]: # of 21
             hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop])
             time1 = time.time()
         
-            print("finished with velocity {} of 21, thet {} of 165. Took {} min.".format(_v + 1, _thet + 1, (time1-time0)/60.))
+            print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
 
-            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_nhi[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_rad[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.hypercube_857[:, :, _v, _thet], hcube.bstart, hcube.bstop)
-            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet), hcube.weights_hypercube[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_nhi[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_rad[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.hypercube_857[:, :, _v, _thet], hcube.bstart, hcube.bstop)
+            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.weights_hypercube[:, :, _v, _thet], hcube.bstart, hcube.bstop)
 
 
 #hcube = HyperCube(singlecube=False)
