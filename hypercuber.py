@@ -79,6 +79,8 @@ class HyperCube():
         self.ells = ells.reshape(X.shape)
         self.bees = bees.reshape(X.shape)
         
+        np.save("all_galactic_latitudes_galfanhi.npy", self.bees)
+        
     def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90]):
         """
         for a given vel, theta slice, step through and record data
