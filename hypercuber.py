@@ -99,8 +99,9 @@ class HyperCube():
         print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
         
         self.load_lats()
+        print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         velthet[np.where((self.bees < self.bstart) & (self.bees > self.bstop))] = 0
-        
+        print("after b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         nonzeroyx = np.nonzero(velthet)
         nonzeroy = nonzeroyx[0]
         nonzerox = nonzeroyx[1]
