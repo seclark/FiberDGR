@@ -267,7 +267,7 @@ hcube.load_nhi_rad_857(local=False)
 bstart=0
 bstop=10
 
-for _v in [0]: # of 21
+for _v in [1]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
