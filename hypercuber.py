@@ -105,10 +105,10 @@ class HyperCube():
         print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
         
         self.load_lats()
-        print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
+        #print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         velthet[np.where(self.bees < self.bstart)] = 0 
         velthet[np.where(self.bees > self.bstop)] = 0
-        print("after b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
+        #print("after b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         nonzeroyx = np.nonzero(velthet)
         nonzeroy = nonzeroyx[0]
         nonzerox = nonzeroyx[1]
@@ -267,7 +267,7 @@ hcube.load_nhi_rad_857(local=False)
 bstart=0
 bstop=10
 
-for _v in [1]: # of 21
+for _v in [2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
