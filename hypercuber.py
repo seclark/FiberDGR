@@ -132,7 +132,10 @@ class HyperCube():
         for (_y, _x) in zip(nonzeroy, nonzerox):
             
             # the RHT value of the center pixel is the weight
-            centerval = velthet[_y, _x]
+            if biastest is True:
+                centerval = 1.0
+            else:
+                centerval = velthet[_y, _x]
             
             self.startx = np.int(max(0, _x - self.cubehalfx))
             self.stopx = np.int(min(self.maxnx, _x + self.cubehalfx + 1))
@@ -276,15 +279,15 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-biastest=False
-bstart=60 #bstart=80#0
-bstop=70 #bstop=90#10
+biastest=True
+bstart=-90#bstart=60 #bstart=80#0
+bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.89
     zstop=0.91
 
-for _v in [9,10,11]: # of 21
+for _v in [0,1,2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
