@@ -109,10 +109,11 @@ class HyperCube():
             self.zstop = zcut[1]
             print("Tabulating data from z={} to z={}".format(self.zstart, self.zstop))
             
-            # cut based on RHT intensity
+            # cut based on RHT intensity. Need to subtract threshold!!!
+            thresh = 0.7
             print("before z cut, npix = {}".format(len(np.nonzero(velthet)[0])))
-            velthet[np.where(velthet < self.zstart)] = 0 
-            velthet[np.where(velthet > self.zstop)] = 0
+            velthet[np.where(velthet < (self.zstart - thresh))] = 0 
+            velthet[np.where(velthet > (self.zstop - thresh))] = 0
             print("after z cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         
         self.load_lats()
@@ -281,7 +282,7 @@ zstart=0.89
 zstop=0.91
 biastest=True
 
-for _v in [6,7,8]: # of 21
+for _v in [0,1,2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
