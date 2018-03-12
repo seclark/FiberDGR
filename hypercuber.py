@@ -264,10 +264,10 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-bstart=10#0
-bstop=20#10
+bstart=80#0
+bstop=90#10
 
-for _v in [18,19,20]: # of 21
+for _v in [0,1,2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
