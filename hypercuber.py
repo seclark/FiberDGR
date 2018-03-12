@@ -282,7 +282,7 @@ zstart=0.89
 zstop=0.91
 biastest=True
 
-for _v in [6,7,8]: # of 21
+for _v in [9,10,11]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
