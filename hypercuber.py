@@ -85,7 +85,7 @@ class HyperCube():
         
             np.save("all_galactic_latitudes_galfanhi.npy", self.bees)
         
-    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90]):
+    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False):
         """
         for a given vel, theta slice, step through and record data
         """
@@ -103,6 +103,15 @@ class HyperCube():
         self.bstart = bcut[0]
         self.bstop = bcut[1]
         print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
+        
+        if biastest is True:
+            self.zstart = zcut[0]
+            self.zstop = zcut[1]
+            print("Tabulating data from z={} to z={}".format(self.zstart, self.zstop))
+            
+            # cut based on RHT intensity
+            velthet[np.where(velthet < self.zstart)] = 0 
+            velthet[np.where(velthet > self.zstop)] = 0
         
         self.load_lats()
         #print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
@@ -264,26 +273,29 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-bstart=80#0
-bstop=90#10
+bstart=-90 #bstart=80#0
+bstop=90 #bstop=90#10
+zstart=0.89
+zstop=0.91
+biastest=True
 
-for _v in [18,19,20]: # of 21
+for _v in [0, 1, 2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
-        if os.path.isfile("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bstart, bstop)):
-            print("v {}, t {}, bstart {}, bstop {} already exists".format(_v, _thet, bstart, bstop))
+        if os.path.isfile("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bstart, bstop, zstart, zstop)):
+            print("v {}, t {}, bstart {}, bstop {}, zstart {}, zstop {} already exists".format(_v, _thet, bstart, bstop, zstart, zstop))
         else:
             time0 = time.time()
-            hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop])
+            hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest)
             time1 = time.time()
         
             print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
 
-            np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_nhi[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_rad[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_857[:, :, _v, _thet])
-            np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.weights_hypercube[:, :, _v, _thet])
+            np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_nhi[:, :, _v, _thet])
+            np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
+            np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
+            np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 
 
 #hcube = HyperCube(singlecube=False)
