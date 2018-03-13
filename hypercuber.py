@@ -216,7 +216,7 @@ class HyperCube():
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
-    def assemble_hcubes(self):
+    def assemble_hcubes(self, bcut=[-90, 90]):
         self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
@@ -228,10 +228,10 @@ class HyperCube():
         for _v in np.arange(21): 
             for _thet in np.arange(165): 
                 
-                fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}.npy".format(_v, _thet)
-                fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}.npy".format(_v, _thet)
-                fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}.npy".format(_v, _thet)
-                #fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}.npy".format(_v, _thet)
+                fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
                 
                 if os.path.isfile(fn_nhi):
                     self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
@@ -324,12 +324,15 @@ for _v in [18,19,20]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 
 
-#hcube = HyperCube(singlecube=False)
-#hcube.assemble_hcubes()
+hcube = HyperCube(singlecube=False)
+hcube.assemble_hcubes()
 
-#np.save("hcubes/hypercube_nhi.npy", hcube.hypercube_nhi)
-#np.save("hcubes/hypercube_rad.npy", hcube.hypercube_rad)
-#np.save("hcubes/hypercube_857.npy", hcube.hypercube_857)
+bstart=70
+bstop=80
+
+#np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_nhi)
+#np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
+#np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
 
 #hcube.make_movies()
 
