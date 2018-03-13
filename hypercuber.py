@@ -237,6 +237,7 @@ class HyperCube():
                     self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
                     self.hypercube_rad[:, :, _v, _thet] = np.load(fn_rad)
                     self.hypercube_857[:, :, _v, _thet] = np.load(fn_857)
+                    self.weights_hypercube[:, :, _v, _thet] = np.load(fn_weights)
                 else:
                     missing_vt_pair += 1
                     missing_ts_per_v[_v] += 1
@@ -331,9 +332,9 @@ hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes(bcut=[bstart, bstop])
 
 
-#np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_nhi)
-#np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
-#np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
+np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_nhi)
+np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
+np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
 
 #hcube.make_movies()
 
