@@ -279,15 +279,15 @@ class HyperCube():
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-biastest=True
-bstart=-90#bstart=60 #bstart=80#0
-bstop=90#bstop=70 #bstop=90#10
+biastest=False
+bstart=20#bstart=-90#bstart=60 #bstart=80#0
+bstop=30#bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.89
     zstop=0.91
 
-for _v in [18,19,20]: # of 21
+for _v in [0,1,2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
