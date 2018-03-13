@@ -325,8 +325,8 @@ for _v in [18,19,20]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 """
 
-bstart=0
-bstop=10
+bstart=10
+bstop=20
 
 hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes(bcut=[bstart, bstop])
