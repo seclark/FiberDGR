@@ -335,6 +335,7 @@ hcube.assemble_hcubes(bcut=[bstart, bstop])
 np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_nhi)
 np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
 np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
+np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
 
 #hcube.make_movies()
 
