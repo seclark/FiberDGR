@@ -276,19 +276,19 @@ class HyperCube():
             plt.close()
             
 # run for nhi, radiance, 857
-"""
+
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
 biastest=False
-bstart=30#bstart=-90#bstart=60 #bstart=80#0
-bstop=40#bstop=90#bstop=70 #bstop=90#10
+bstart=60#bstart=-90#bstart=60 #bstart=80#0
+bstop=70#bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.89
     zstop=0.91
 
-for _v in [18,19,20]: # of 21
+for _v in [0,1,2]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
@@ -323,8 +323,8 @@ for _v in [18,19,20]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
-"""
 
+"""
 bstart=60
 bstop=70
 
@@ -336,7 +336,7 @@ np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcu
 np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
 np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
-
+"""
 #hcube.make_movies()
 
 
