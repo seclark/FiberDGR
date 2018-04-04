@@ -216,7 +216,7 @@ class HyperCube():
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
-    def assemble_hcubes(self, bcut=[-90, 90]):
+    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False):
         self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
@@ -228,10 +228,17 @@ class HyperCube():
         for _v in np.arange(21): 
             for _thet in np.arange(165): 
                 
-                fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                if biastest is False:
+                    fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                    fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                    fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                    fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                else: 
+                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+
                 
                 if os.path.isfile(fn_nhi):
                     self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
@@ -247,12 +254,15 @@ class HyperCube():
         print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
         print("Number of missing ts per v : {}".format(missing_ts_per_v))
         
-    def make_movies(self, bstart=-90, bstop=90):
+    def make_movies(self, bstart=-90, bstop=90, movietype="nhi"):
         
         dataroot = "data/"
-        hcube_nhi = np.load(dataroot+"hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop))
-        #hcube_rad = np.load(dataroot+"hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop))
-        #hcube_857 = np.load(dataroot+"hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop))
+        if movietype == "nhi":
+            hcube_nhi = np.load(dataroot+"hypercube_nhi_bstart_{}_bstop_{}.npy".format(bstart, bstop))
+        elif movietype == "rad":
+            hcube_rad = np.load(dataroot+"hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop))
+        elif movietype == "857":
+            hcube_857 = np.load(dataroot+"hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop))
         
         for _thet in np.arange(165): # of 165
         
@@ -260,9 +270,12 @@ class HyperCube():
         
             for _i, _v in enumerate(np.arange(21)):
                 ax = fig.add_subplot(3, 7, _i + 1)
-                im = ax.imshow(hcube_nhi[:, :, _v, _thet])
-                #im = ax.imshow(hcube_rad[:, :, _v, _thet])
-                #im = ax.imshow(hcube_857[:, :, _v, _thet])
+                if movietype == "nhi":
+                    im = ax.imshow(hcube_nhi[:, :, _v, _thet])
+                elif movietype == "rad":
+                    im = ax.imshow(hcube_rad[:, :, _v, _thet])
+                elif movietype == "857":
+                    im = ax.imshow(hcube_857[:, :, _v, _thet])
                 
                 #divider = make_axes_locatable(ax)
                 #cax = divider.append_axes("right", size="3%", pad=0.05)
@@ -272,19 +285,22 @@ class HyperCube():
                 ax.set_title("{}".format(_v))
                 ax.set_xticks([])
                 ax.set_yticks([])
-                
-            plt.suptitle("NHI, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
-            plt.savefig("figures/allvel_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
             
-            #plt.suptitle("Radiance, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
-            #plt.savefig("figures/allvel_rad_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
-            
-            #plt.suptitle("857 GHz, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
-            #plt.savefig("figures/allvel_857_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
-            plt.close()
+            if movietype == "nhi":
+                plt.suptitle("NHI, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
+                plt.savefig("figures/allvel_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
+                plt.close()
+            elif movietype == "rad":
+                plt.suptitle("Radiance, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
+                plt.savefig("figures/allvel_rad_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
+                plt.close()
+            elif movietype == "857":
+                plt.suptitle("857 GHz, theta = {}".format(np.round(np.degrees((np.pi/165)*_thet)), 2))
+                plt.savefig("figures/allvel_857_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
+                plt.close()
             
 # run for nhi, radiance, 857
-
+"""
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
@@ -332,7 +348,7 @@ for _v in [18, 19, 20]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 
-
+"""
 
 # assemble cubes
 """
@@ -348,7 +364,23 @@ np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcu
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
 """
 
+
+bstart=-90
+bstop=90
+zstart=0.89
+zstop=0.91
+
+hcube = HyperCube(singlecube=False)
+hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[0.89, 0.91], biastest=True)
+
+np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_nhi)
+np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_rad)
+np.save("hcubes/hypercube_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
+np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
+
+
+
 #hcube = HyperCube(singlecube=False)
-#hcube.make_movies(bstart=20, bstop=30)
+#hcube.make_movies(bstart=20, bstop=30, movietype="857")
 
 
