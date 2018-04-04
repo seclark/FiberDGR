@@ -254,7 +254,7 @@ class HyperCube():
         print("Number of missing v, theta pairs is {} out of {}".format(missing_vt_pair, self.nvel*self.ntheta))
         print("Number of missing ts per v : {}".format(missing_ts_per_v))
         
-    def make_movies(self, bstart=-90, bstop=90, movietype="nhi"):
+    def make_movies(self, bstart=-90, bstop=90, zstart=0.89, zstop=0.91, movietype="nhi"):
         
         dataroot = "data/"
         if movietype == "nhi":
@@ -312,7 +312,7 @@ if biastest is True:
     zstart=0.87#0.89
     zstop=0.93#0.91
 
-for _v in [9, 10, 11]: # of 21
+for _v in [12, 13, 14]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
