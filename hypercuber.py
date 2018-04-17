@@ -46,14 +46,17 @@ class HyperCube():
             print("WARNING: only processing a single 2d data cube")
         else:
             self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+            self.hypercube_400 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
             self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
             self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
             
         self.nhi_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits"
+        self.nhi_400_fn = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-400+400kms.fits"
         self.rad_fn = "/disks/jansky/a/users/goldston/susan/Planck/COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits"
         self.P857_fn = "/disks/jansky/a/users/goldston/susan/Planck/HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits"
         
         self.nhi = fits.getdata(self.nhi_fn)
+        self.nhi_400 = fits.getdata(self.nhi_400_fn)
         self.radiance = fits.getdata(self.rad_fn)
         self.Planck857 = fits.getdata(self.P857_fn)
     
@@ -201,6 +204,8 @@ class HyperCube():
                     self.hypercube_rad[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.radiance[self.starty:self.stopy, self.startx2:self.maxnx]
                     self.hypercube_857[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx1:self.stopx1]
                     self.hypercube_857[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx2:self.maxnx]
+                    self.hypercube_400[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval*self.nhi_400[self.starty:self.stopy, self.startx1:self.stopx1]
+                    self.hypercube_400[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.nhi_400[self.starty:self.stopy, self.startx2:self.maxnx]
             
                 # save weights
                 self.weights_hypercube[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval
@@ -213,6 +218,7 @@ class HyperCube():
                     self.hypercube_nhi[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.nhi[self.starty:self.stopy, self.startx:self.stopx]
                     self.hypercube_rad[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.radiance[self.starty:self.stopy, self.startx:self.stopx]
                     self.hypercube_857[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.Planck857[self.starty:self.stopy, self.startx:self.stopx]
+                    self.hypercube_400[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval*self.nhi_400[self.starty:self.stopy, self.startx:self.stopx]
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
@@ -220,6 +226,7 @@ class HyperCube():
         self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
+        self.hypercube_400 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
         missing_vt_pair = 0
@@ -232,11 +239,13 @@ class HyperCube():
                     fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
                     fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
                     fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                    fn_400 = "temp_hcube_slices/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
                     fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
                 else: 
                     fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
 
                 
@@ -244,6 +253,7 @@ class HyperCube():
                     self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
                     self.hypercube_rad[:, :, _v, _thet] = np.load(fn_rad)
                     self.hypercube_857[:, :, _v, _thet] = np.load(fn_857)
+                    self.hypercube_400[:, :, _v, _thet] = np.load(fn_nhi_400)
                     self.weights_hypercube[:, :, _v, _thet] = np.load(fn_weights)
                 else:
                     missing_vt_pair += 1
@@ -358,14 +368,14 @@ hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
 biastest=False
-bstart=-90#bstart=60 #bstart=80#0
+bstart=30#bstart=60 #bstart=80#0
 bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
-    zstart=0.87#0.89
-    zstop=0.93#0.91
+    zstart=0.89
+    zstop=0.91
 
-for _v in [17]: # of 21
+for _v in [0, 1]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(130, 166): # of 165
     
