@@ -377,7 +377,7 @@ if biastest is True:
 
 for _v in [0, 1]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(130, 166): # of 165
+    for _thet in np.arange(0, 165): # of 165
     
         if biastest is True:
             outfn = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bstart, bstop, zstart, zstop)
@@ -401,12 +401,14 @@ for _v in [0, 1]: # of 21
             
             if biastest is False:
                 np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_nhi[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_400[:, :, _v, _thet])
                 np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_rad[:, :, _v, _thet])
                 np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.weights_hypercube[:, :, _v, _thet])
 
             if biastest is True:
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_nhi[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_400[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
