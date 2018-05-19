@@ -253,7 +253,7 @@ class HyperCube():
                     self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
                     self.hypercube_rad[:, :, _v, _thet] = np.load(fn_rad)
                     self.hypercube_857[:, :, _v, _thet] = np.load(fn_857)
-                    self.hypercube_400[:, :, _v, _thet] = np.load(fn_nhi_400)
+                    self.hypercube_400[:, :, _v, _thet] = np.load(fn_400)
                     self.weights_hypercube[:, :, _v, _thet] = np.load(fn_weights)
                 else:
                     missing_vt_pair += 1
