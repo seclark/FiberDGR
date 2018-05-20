@@ -414,9 +414,16 @@ for _v in [9]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 """
 
+hcube = HyperCube(singlecube=False)
+hcube.load_nhi_rad_857()
+print("P857 header")
+print(fits.getheader(hcube.P857_fn))
+print("Rad header")
+print(fits.getheader(hcube.rad_fn))
+
 
 # assemble cubes
-
+"""
 bstart=30
 bstop=90
 
@@ -428,7 +435,7 @@ np.save("hcubes/hypercube_nhi_400_bstart_{}_bstop_{}.npy".format(bstart, bstop),
 np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_rad)
 np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.hypercube_857)
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
-
+"""
 
 """
 bstart=-90
