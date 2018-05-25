@@ -372,7 +372,7 @@ bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.70
-    zstop=0.80
+    zstop=0.81
 
 for _v in np.arange(21): # of 21
     print("running velocity {}".format(_v))
