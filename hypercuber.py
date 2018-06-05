@@ -245,7 +245,7 @@ class HyperCube():
                     fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_400 = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
                     fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
 
                 
