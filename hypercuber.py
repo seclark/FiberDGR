@@ -13,6 +13,8 @@ import galfa_vel_helpers
 sys.path.insert(0, '../FITSHandling/code')
 import cutouts
 
+print("python version is {}".format(python.__version__))
+
 class HyperCube():
     """
     hyper cube class, dimensions (ra x dec x vel x theta)
@@ -229,6 +231,8 @@ class HyperCube():
         self.hypercube_400 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
+        print("assembling hcubes for b = {} to {}, z = {} to {}".format(bcut[0], bcut[1], zcut[0], zcut[1]))
+        
         missing_vt_pair = 0
         missing_ts_per_v = np.zeros(21)
         
@@ -434,7 +438,7 @@ np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop),
 bstart=30
 bstop=90
 zstart=0.70
-zstop=0.71
+zstop=0.72
 
 hcube = HyperCube(singlecube=False)
 hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=True)
