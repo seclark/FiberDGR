@@ -241,7 +241,7 @@ class HyperCube():
         missing_vt_pair = 0
         missing_ts_per_v = np.zeros(len(all_vs))
         
-        for _v in all_vs: 
+        for i_v, _v in enumerate(all_vs): 
             for _thet in np.arange(165): 
                 
                 if biastest is False:
@@ -259,14 +259,14 @@ class HyperCube():
 
                 
                 if os.path.isfile(fn_nhi):
-                    self.hypercube_nhi[:, :, _v, _thet] = np.load(fn_nhi)
-                    self.hypercube_rad[:, :, _v, _thet] = np.load(fn_rad)
-                    self.hypercube_857[:, :, _v, _thet] = np.load(fn_857)
-                    self.hypercube_400[:, :, _v, _thet] = np.load(fn_400)
-                    self.weights_hypercube[:, :, _v, _thet] = np.load(fn_weights)
+                    self.hypercube_nhi[:, :, i_v, _thet] = np.load(fn_nhi)
+                    self.hypercube_rad[:, :, i_v, _thet] = np.load(fn_rad)
+                    self.hypercube_857[:, :, i_v, _thet] = np.load(fn_857)
+                    self.hypercube_400[:, :, i_v, _thet] = np.load(fn_400)
+                    self.weights_hypercube[:, :, i_v, _thet] = np.load(fn_weights)
                 else:
                     missing_vt_pair += 1
-                    missing_ts_per_v[_v] += 1
+                    missing_ts_per_v[i_v] += 1
                     
                     print("missing v = {}, t = {}".format(_v, _thet))
                     
