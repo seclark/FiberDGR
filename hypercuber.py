@@ -224,7 +224,7 @@ class HyperCube():
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
-    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False):
+    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, minicube=False):
         self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
@@ -233,10 +233,15 @@ class HyperCube():
         
         print("assembling hcubes for b = {} to {}, z = {} to {}".format(bcut[0], bcut[1], zcut[0], zcut[1]))
         
-        missing_vt_pair = 0
-        missing_ts_per_v = np.zeros(21)
+        if minicube:
+            all_vs = np.arange(21)
+        else:
+            all_vs = [9, 10, 11]
         
-        for _v in np.arange(21): 
+        missing_vt_pair = 0
+        missing_ts_per_v = np.zeros(len(all_vs))
+        
+        for _v in all_vs: 
             for _thet in np.arange(165): 
                 
                 if biastest is False:
@@ -366,7 +371,7 @@ class HyperCube():
                     plt.savefig("figures/allvel_rad_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
                 plt.close()
                 
-
+"""
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
@@ -417,7 +422,7 @@ for _v in [13]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
 
-
+"""
 
 # assemble cubes
 """
@@ -434,14 +439,14 @@ np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcu
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
 """
 
-"""
+
 bstart=30
 bstop=90
 zstart=0.70
 zstop=0.72
 
 hcube = HyperCube(singlecube=False)
-hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=True)
+hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=True, minicube=False)
 
 if hcube.nmissing == 0.0:
     print("Missing no v, t pairs. Saving cubes.")
@@ -449,7 +454,7 @@ if hcube.nmissing == 0.0:
     np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_rad)
     np.save("hcubes/hypercube_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
     np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
-"""
+
 
 
 #hcube = HyperCube(singlecube=False)
