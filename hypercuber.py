@@ -382,7 +382,8 @@ bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.70
-    zstop=0.77
+    zstop=0.78
+    
 
 for _v in [9]: # of 21
     print("running velocity {}".format(_v))
