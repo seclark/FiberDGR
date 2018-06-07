@@ -382,12 +382,12 @@ bstop=90#bstop=70 #bstop=90#10
 
 if biastest is True:
     zstart=0.70
-    zstop=0.74
+    zstop=0.75
     
 
 for _v in [11]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(140, 165): # of 165
+    for _thet in np.arange(130, 165): # of 165
     
         if biastest is True:
             outfn = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bstart, bstop, zstart, zstop)
