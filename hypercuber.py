@@ -371,7 +371,7 @@ class HyperCube():
                     plt.savefig("figures/allvel_rad_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
                 plt.close()
                 
-"""
+
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
@@ -384,7 +384,7 @@ if biastest is True:
     zstart=0.70
     zstop=0.78
     
-for _v in [11]: # of 21
+for _v in [10]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(130, 165): # of 165
     
@@ -421,7 +421,7 @@ for _v in [11]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
-"""
+
 
 
 # assemble cubes
@@ -439,7 +439,7 @@ np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcu
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
 """
 
-
+"""
 bstart=30
 bstop=90
 zstart=0.70
@@ -464,7 +464,7 @@ if hcube.nmissing == 0.0:
         np.save("hcubes/hypercube_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
         np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
 
-
+"""
 
 #hcube = HyperCube(singlecube=False)
 #hcube.make_movies(bstart=70, bstop=80, movietype="rad_nhi", biastest=False)
