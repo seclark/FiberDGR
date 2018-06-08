@@ -444,7 +444,7 @@ np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop),
 bstart=30
 bstop=90
 zstart=0.70
-zstop=0.76
+zstop=0.77
 minicube=True
 
 hcube = HyperCube(singlecube=False)
