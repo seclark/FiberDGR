@@ -402,7 +402,7 @@ if biastest is True:
     zstart=0.70
     zstop=0.78
     
-for _v in [10]: # of 21
+for _v in [9]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
@@ -463,24 +463,30 @@ bstop=90
 zstart=0.70
 zstop=0.77
 minicube=True
+absbcut=True
+
+if absbcut:
+    absbcut_str = "absb_"
+else:
+    absbcut_str = ""
 
 hcube = HyperCube(singlecube=False)
-hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=True, minicube=minicube)
+hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=True, minicube=minicube, absbcut=absbcut)
 
 if hcube.nmissing == 0.0:
     if minicube:
         print("Missing no v, t pairs. Saving cubes.")
-        np.save("hcubes/hypercube_mini_nhi_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_nhi)
-        np.save("hcubes/hypercube_mini_rad_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_rad)
-        np.save("hcubes/hypercube_mini_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
-        np.save("hcubes/hypercube_mini_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
+        np.save("hcubes/hypercube_mini_nhi_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_nhi)
+        np.save("hcubes/hypercube_mini_rad_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_rad)
+        np.save("hcubes/hypercube_mini_857_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_857)
+        np.save("hcubes/hypercube_mini_weights_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.weights_hypercube)
     
     else:
         print("Missing no v, t pairs. Saving cubes.")
-        np.save("hcubes/hypercube_nhi_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_nhi)
-        np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_rad)
-        np.save("hcubes/hypercube_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
-        np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
+        np.save("hcubes/hypercube_nhi_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_nhi)
+        np.save("hcubes/hypercube_rad_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_rad)
+        np.save("hcubes/hypercube_857_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.hypercube_857)
+        np.save("hcubes/hypercube_weights_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(absbcut_str, bstart, bstop, zstart, zstop), hcube.weights_hypercube)
 """
 
 
