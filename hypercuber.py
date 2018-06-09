@@ -90,7 +90,7 @@ class HyperCube():
         
             np.save("all_galactic_latitudes_galfanhi.npy", self.bees)
         
-    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False):
+    def tabulate_per_vel_theta(self, vel_i=0, theta_i=0, verbose=False, absbcut=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False):
         """
         for a given vel, theta slice, step through and record data
         """
@@ -107,7 +107,10 @@ class HyperCube():
         # set bcut, if any -- this means that anything outside of the bcut won't be stacked on. but anything inside window will still be stacked.
         self.bstart = bcut[0]
         self.bstop = bcut[1]
-        print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
+        if absbcut:
+            print("Tabulating data from |b|>{} to |b|<{}".format(self.bstart, self.bstop))
+        else:
+            print("Tabulating data from b={} to b={}".format(self.bstart, self.bstop))
         
         if biastest is True:
             self.zstart = zcut[0]
@@ -123,8 +126,12 @@ class HyperCube():
         
         self.load_lats()
         #print("before b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
-        velthet[np.where(self.bees < self.bstart)] = 0 
-        velthet[np.where(self.bees > self.bstop)] = 0
+        if absbcut:
+            velthet[np.where(np.abs(self.bees) < self.bstart)] = 0 
+            velthet[np.where(np.abs(self.bees) > self.bstop)] = 0
+        else:
+            velthet[np.where(self.bees < self.bstart)] = 0 
+            velthet[np.where(self.bees > self.bstop)] = 0
         #print("after b cut, npix = {}".format(len(np.nonzero(velthet)[0])))
         nonzeroyx = np.nonzero(velthet)
         nonzeroy = nonzeroyx[0]
@@ -224,7 +231,7 @@ class HyperCube():
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
-    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, minicube=False):
+    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], absbcut=False, biastest=False, minicube=False):
         self.hypercube_nhi = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_rad = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.hypercube_857 = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
@@ -241,21 +248,26 @@ class HyperCube():
         missing_vt_pair = 0
         missing_ts_per_v = np.zeros(len(all_vs))
         
+        if absbcut:
+            absbcut_str = "absb_"
+        else:
+            absbcut_str = ""
+        
         for i_v, _v in enumerate(all_vs): 
             for _thet in np.arange(165): 
                 
                 if biastest is False:
-                    fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                    fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                    fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                    fn_400 = "temp_hcube_slices/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
-                    fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bcut[0], bcut[1])
+                    fn_nhi = "temp_hcube_slices/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
+                    fn_rad = "temp_hcube_slices/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
+                    fn_857 = "temp_hcube_slices/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
+                    fn_400 = "temp_hcube_slices/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
+                    fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
                 else: 
-                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_400 = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_400 = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
 
                 
                 if os.path.isfile(fn_nhi):
@@ -371,14 +383,20 @@ class HyperCube():
                     plt.savefig("figures/allvel_rad_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
                 plt.close()
                 
-"""
+
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
 
-biastest=True
+biastest=False
 bstart=30#bstart=60 #bstart=80#0
 bstop=90#bstop=70 #bstop=90#10
+absbcut=True
+
+if absbcut:
+    absbcut_str = "absb_"
+else:
+    absbcut_str = ""
 
 if biastest is True:
     zstart=0.70
@@ -386,42 +404,42 @@ if biastest is True:
     
 for _v in [10]: # of 21
     print("running velocity {}".format(_v))
-    for _thet in np.arange(110, 130): # of 165
+    for _thet in np.arange(165): # of 165
     
         if biastest is True:
-            outfn = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, bstart, bstop, zstart, zstop)
+            outfn = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bstart, bstop, zstart, zstop)
         else:
-            outfn = "temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, bstart, bstop)
+            outfn = "temp_hcube_slices/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bstart, bstop)
         
         if os.path.isfile(outfn):
             if biastest is True:
-                print("v {}, t {}, bstart {}, bstop {}, zstart {}, zstop {} already exists".format(_v, _thet, bstart, bstop, zstart, zstop))
+                print("v {}, t {}, bstart {}, bstop {}, absbcut {}, zstart {}, zstop {} already exists".format(_v, _thet, bstart, bstop, absbcut, zstart, zstop))
             else:
-                print("v {}, t {}, bstart {}, bstop {} already exists".format(_v, _thet, bstart, bstop))
+                print("v {}, t {}, bstart {}, bstop {}, absbcut {} already exists".format(_v, _thet, bstart, bstop, absbcut))
         else:
             time0 = time.time()
             if biastest is True:
-                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest)
+                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, absbcut=absbcut)
             if biastest is False:
-                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], biastest=biastest)
+                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], biastest=biastest, absbcut=absbcut)
             time1 = time.time()
         
             print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
             
             if biastest is False:
-                np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_nhi[:, :, _v, _thet])
-                np.save("temp_hcube_slices/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_400[:, :, _v, _thet])
-                np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_rad[:, :, _v, _thet])
-                np.save("temp_hcube_slices/hypercube_857_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.hypercube_857[:, :, _v, _thet])
-                np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop), hcube.weights_hypercube[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.hypercube_nhi[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.hypercube_400[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.hypercube_rad[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.hypercube_857[:, :, _v, _thet])
+                np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.weights_hypercube[:, :, _v, _thet])
 
             if biastest is True:
-                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_nhi[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_400[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
-"""
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_nhi[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_400[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
+
 
 
 # assemble cubes
@@ -439,7 +457,7 @@ np.save("hcubes/hypercube_857_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcu
 np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}.npy".format(bstart, bstop), hcube.weights_hypercube)
 """
 
-
+"""
 bstart=30
 bstop=90
 zstart=0.70
@@ -463,7 +481,7 @@ if hcube.nmissing == 0.0:
         np.save("hcubes/hypercube_rad_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_rad)
         np.save("hcubes/hypercube_857_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.hypercube_857)
         np.save("hcubes/hypercube_weights_bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(bstart, bstop, zstart, zstop), hcube.weights_hypercube)
-
+"""
 
 
 #hcube = HyperCube(singlecube=False)
