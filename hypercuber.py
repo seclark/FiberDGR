@@ -245,7 +245,10 @@ class HyperCube():
         self.hypercube_400 = np.zeros((self.ny, self.nx, nvel, self.ntheta), np.float_)
         self.weights_hypercube = np.zeros((self.ny, self.nx, nvel, self.ntheta), np.float_)
         
-        print("assembling hcubes for b = {} to {}, z = {} to {}".format(bcut[0], bcut[1], zcut[0], zcut[1]))
+        if biastest:
+            print("assembling hcubes for b = {} to {}, z = {} to {}, absbcut {}".format(bcut[0], bcut[1], zcut[0], zcut[1], absbcut))
+        else:
+            print("assembling hcubes for b = {} to {}, absbcut {}".format(bcut[0], bcut[1], zcut[0], zcut[1], absbcut))
         
         missing_vt_pair = 0
         missing_ts_per_v = np.zeros(len(all_vs))
