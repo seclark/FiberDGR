@@ -452,7 +452,7 @@ for _v in [11]: # of 21
 bstart=30
 bstop=90
 zstart=0.70
-zstop=0.71
+zstop=0.73
 minicube=True
 absbcut=True
 biastest=True
