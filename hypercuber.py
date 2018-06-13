@@ -452,10 +452,10 @@ for _v in [0,1,2]: # of 21
 bstart=30
 bstop=90
 zstart=0.70
-zstop=0.77
+zstop=0.71
 minicube=True
 absbcut=True
-biastest=False
+biastest=True
 
 if absbcut:
     absbcut_str = "absb_"
