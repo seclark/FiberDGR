@@ -405,7 +405,7 @@ else:
 
 if biastest is True:
     zstart=0.80
-    zstop=0.81#0.76#0.85
+    zstop=0.82#0.76#0.85
     
 for _v in [9]: # of 21
     print("running velocity {}".format(_v))
