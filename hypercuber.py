@@ -13,7 +13,7 @@ import galfa_vel_helpers
 sys.path.insert(0, '../FITSHandling/code')
 import cutouts
 
-print("python version is {}".format(sys.version))
+#print("python version is {}".format(sys.version))
 
 class HyperCube():
     """
