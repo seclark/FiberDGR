@@ -414,8 +414,8 @@ if biastest:
         centervalstr = ""
 
 if biastest is True:
-    zstart=0.70
-    zstop=0.73#0.76#0.85
+    zstart=0.73
+    zstop=0.76#0.76#0.85
     
 for _v in [9]: # of 21
     print("running velocity {}".format(_v))
