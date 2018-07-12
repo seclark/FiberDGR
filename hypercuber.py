@@ -422,7 +422,7 @@ for _v in [9]: # of 21
     for _thet in np.arange(165): # of 165
     
         if biastest is True:
-            outfn = "temp_hcube_slices/biastest_{}_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, bstart, bstop, zstart, zstop)
+            outfn = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
         else:
             outfn = "temp_hcube_slices/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bstart, bstop)
         
@@ -449,11 +449,11 @@ for _v in [9]: # of 21
                 np.save("temp_hcube_slices/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop), hcube.weights_hypercube[:, :, _v, _thet])
 
             if biastest is True:
-                np.save("temp_hcube_slices/biastest_{}_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_nhi[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_{}_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_400[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_{}_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_rad[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_{}_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.hypercube_857[:, :, _v, _thet])
-                np.save("temp_hcube_slices/biastest_{}_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(centervalstr, _v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop), hcube.weights_hypercube[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.hypercube_nhi[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.hypercube_400[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.hypercube_rad[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.hypercube_857[:, :, _v, _thet])
+                np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.weights_hypercube[:, :, _v, _thet])
 
 
 
