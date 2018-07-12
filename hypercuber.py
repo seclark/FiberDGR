@@ -408,7 +408,7 @@ else:
     absbcut_str = ""
 
 if biastest:    
-    if centerval:
+    if centerweight:
         centervalstr = "centerw"
     else:
         centervalstr = ""
