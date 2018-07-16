@@ -467,8 +467,8 @@ for _v in [9, 10, 11]: # of 21
 
 bstart=30
 bstop=90
-zstart=0.91
-zstop=0.94
+zstart=0.85
+zstop=0.88
 minicube=True
 absbcut=True
 biastest=True
