@@ -234,7 +234,7 @@ class HyperCube():
                     
                 self.weights_hypercube[self.smallstarty:self.smallstopy, :, vel_i, theta_i] += centerval
     
-    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], absbcut=False, biastest=False, minicube=False):
+    def assemble_hcubes(self, bcut=[-90, 90], zcut=[0.89, 0.91], absbcut=False, biastest=False, minicube=False, centerweight=True):
         if minicube:
             all_vs = [9, 10, 11]
         else:
@@ -260,6 +260,12 @@ class HyperCube():
             absbcut_str = "absb_"
         else:
             absbcut_str = ""
+            
+        if biastest:    
+            if centerweight:
+                centervalstr = "centerw"
+            else:
+                centervalstr = ""
         
         for i_v, _v in enumerate(all_vs): 
             for _thet in np.arange(165): 
@@ -271,11 +277,11 @@ class HyperCube():
                     fn_400 = "temp_hcube_slices/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
                     fn_weights = "temp_hcube_slices/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1])
                 else: 
-                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_400 = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
-                    fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1])
+                    fn_nhi = "temp_hcube_slices/biastest_zcut/hypercube_nhi_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1], centervalstr)
+                    fn_rad = "temp_hcube_slices/biastest_zcut/hypercube_rad_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1], centervalstr)
+                    fn_857 = "temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1], centervalstr)
+                    fn_400 = "temp_hcube_slices/biastest_zcut/hypercube_nhi_400_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1], centervalstr)
+                    fn_weights = "temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, bcut[0], bcut[1], zcut[0], zcut[1], centervalstr)
 
                 
                 if os.path.isfile(fn_nhi):
@@ -391,7 +397,7 @@ class HyperCube():
                     plt.savefig("figures/allvel_rad_nhi_bstart_{}_bstop_{}_theta_{}.png".format(bstart, bstop, str(_thet).zfill(3)))
                 plt.close()
                 
-
+"""
 # run for nhi, radiance, 857
 hcube = HyperCube(singlecube=False)
 hcube.load_nhi_rad_857(local=False)
@@ -455,17 +461,18 @@ for _v in [9, 10, 11]: # of 21
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_857_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.hypercube_857[:, :, _v, _thet])
                 np.save("temp_hcube_slices/biastest_zcut/hypercube_weights_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}_{}.npy".format(_v, _thet, absbcut_str, hcube.bstart, hcube.bstop, hcube.zstart, hcube.zstop, centervalstr), hcube.weights_hypercube[:, :, _v, _thet])
 
-
+"""
 
 # assemble cubes
-"""
+
 bstart=30
 bstop=90
-zstart=0.80
-zstop=0.83
+zstart=0.70
+zstop=0.73
 minicube=True
 absbcut=True
 biastest=True
+centerweight=True
 
 if absbcut:
     absbcut_str = "absb_"
@@ -474,20 +481,25 @@ else:
     
 if biastest:
     biastest_str = "_zstart_{}_zstop_{}".format(zstart, zstop)
+    if centerweight:
+        centervalstr = "centerw"
+    else:
+        centervalstr = ""
 else:
     biastest_str = ""
+    
 
 hcube = HyperCube(singlecube=False)
-hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, minicube=minicube, absbcut=absbcut)
+hcube.assemble_hcubes(bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, minicube=minicube, absbcut=absbcut, centerweight=centerweight)
 
 if hcube.nmissing == 0.0:
     if minicube:
         print("Missing no v, t pairs. Saving cubes.")
-        np.save("hcubes/hypercube_mini_nhi_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_nhi)
-        np.save("hcubes/hypercube_mini_nhi_400_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_nhi)
-        np.save("hcubes/hypercube_mini_rad_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_rad)
-        np.save("hcubes/hypercube_mini_857_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_857)
-        np.save("hcubes/hypercube_mini_weights_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.weights_hypercube)
+        np.save("hcubes/hypercube_mini_nhi_{}bstart_{}_bstop_{}{}_{}.npy".format(absbcut_str, bstart, bstop, biastest_str, centervalstr), hcube.hypercube_nhi)
+        np.save("hcubes/hypercube_mini_nhi_400_{}bstart_{}_bstop_{}{}_{}.npy".format(absbcut_str, bstart, bstop, biastest_str, centervalstr), hcube.hypercube_nhi)
+        np.save("hcubes/hypercube_mini_rad_{}bstart_{}_bstop_{}{}_{}.npy".format(absbcut_str, bstart, bstop, biastest_str, centervalstr), hcube.hypercube_rad)
+        np.save("hcubes/hypercube_mini_857_{}bstart_{}_bstop_{}{}_{}.npy".format(absbcut_str, bstart, bstop, biastest_str, centervalstr), hcube.hypercube_857)
+        np.save("hcubes/hypercube_mini_weights_{}bstart_{}_bstop_{}{}_{}.npy".format(absbcut_str, bstart, bstop, biastest_str, centervalstr), hcube.weights_hypercube)
     
     else:
         print("Missing no v, t pairs. Saving cubes.")
@@ -496,7 +508,7 @@ if hcube.nmissing == 0.0:
         np.save("hcubes/hypercube_rad_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_rad)
         np.save("hcubes/hypercube_857_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.hypercube_857)
         np.save("hcubes/hypercube_weights_{}bstart_{}_bstop_{}{}.npy".format(absbcut_str, bstart, bstop, biastest_str), hcube.weights_hypercube)
-"""
+
 
 #hcube = HyperCube(singlecube=False)
 #hcube.make_movies(bstart=70, bstop=80, movietype="rad_nhi", biastest=False)
