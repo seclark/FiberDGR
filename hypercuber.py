@@ -220,6 +220,7 @@ class HyperCube():
                     self.hypercube_400[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval*self.nhi_400[self.starty:self.stopy, self.startx2:self.maxnx]
             
                 # save weights
+                self.weights_hypercube[self.smallstarty:self.smallstopy, self.smallstartx2:, vel_i, theta_i] += centerval 
                 self.weights_hypercube[self.smallstarty:self.smallstopy, self.smallstartx1:self.smallstartx2, vel_i, theta_i] += centerval
             
             # otherwise, proceed
@@ -440,7 +441,7 @@ for _v in [9, 10, 11]: # of 21
         else:
             time0 = time.time()
             if biastest is True:
-                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, absbcut=absbcut, centerweight=centerweight)
+                hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, absbcut=absbcut, eight=eight)
             if biastest is False:
                 hcube.tabulate_per_vel_theta(vel_i=_v, theta_i=_thet, verbose=False, bcut=[bstart, bstop], biastest=biastest, absbcut=absbcut)
             time1 = time.time()
