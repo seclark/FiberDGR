@@ -482,12 +482,13 @@ else:
     
 if biastest:
     biastest_str = "_zstart_{}_zstop_{}".format(zstart, zstop)
-    if centerweight:
-        centervalstr = "centerw"
-    else:
-        centervalstr = ""
 else:
     biastest_str = ""
+    
+if centerweight:
+    centervalstr = "centerw"
+else:
+    centervalstr = ""
     
 
 hcube = HyperCube(singlecube=False)
