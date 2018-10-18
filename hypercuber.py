@@ -252,7 +252,7 @@ class HyperCube():
         if biastest:
             print("assembling hcubes for b = {} to {}, z = {} to {}, absbcut {}".format(bcut[0], bcut[1], zcut[0], zcut[1], absbcut))
         else:
-            print("assembling hcubes for b = {} to {}, absbcut {}".format(bcut[0], bcut[1], zcut[0], zcut[1], absbcut))
+            print("assembling hcubes for b = {} to {}, absbcut {}".format(bcut[0], bcut[1], absbcut))
         
         missing_vt_pair = 0
         missing_ts_per_v = np.zeros(len(all_vs))
