@@ -186,7 +186,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerwei
                 else:
                     stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]             
         
-        return stackslice
+    return stackslice
 
 def get_vel_theta_slice(vel_i, theta_i):
     velrangestr = galfa_vel_helpers.all_rht_velstrs[vel_i]
