@@ -337,8 +337,8 @@ if __name__ == "__main__":
         
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
-    #vels=["1023", "1024", "1025"]
-    vels=["1024"]
+    vels=["1023", "1024", "1025"]
+    #vels=["1024"]
 
     # find data to stack on
     fwhm_arcmin = 30
@@ -360,5 +360,5 @@ if __name__ == "__main__":
 
     time1 = time.time()    
 
-        
+
         
