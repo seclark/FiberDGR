@@ -97,7 +97,7 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
     return nonzeroy, nonzerox
     
 
-def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerweight=True, verbose=False, cubenx=101, cubeny=101, weightsslice=False):
+def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=False, centerweight=True, verbose=False, cubenx=101, cubeny=101, weightsslice=False):
     """
     stack data
     """
@@ -308,11 +308,11 @@ def stack_on_RHT():
                 # stack data
                 for _datatype in datatypelist:
                     stackthese_data = load_2d_data(datatype=_datatype)
-                    stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+                    stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=False)
                     slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
                     np.save(slice_fn, stackslice)
                 
-                weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
+                weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=True)
                 weight_slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
                 np.save(weight_slice_fn, weightslice)
                 
