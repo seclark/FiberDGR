@@ -32,8 +32,8 @@ def load_2d_data(datatype="NHI90"):
     fn_dict = {"NHI90": nhi_data_root+"GALFA-HI_NHISRCORR_VLSR-90+90kms.fits",
                "NHI400": nhi_data_root+"GNHImaps_SRCORR_final/NHImaps/GALFA-HI_NHISRCORR_VLSR-400+400kms.fits",
                "Rad": planck_data_root+"COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits",
-               "P857": planck_data_root+"HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits"
-               "COM545": planck_data_root+"COM_CompMap_Dust-GNILC-F545_2048_R2.00_ONGALFAHI.fits"
+               "P857": planck_data_root+"HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits",
+               "COM545": planck_data_root+"COM_CompMap_Dust-GNILC-F545_2048_R2.00_ONGALFAHI.fits",
                "Halpha": planck_data_root+"Halpha_finkbeiner03_proj_on_DR2.fits"
               }
     
