@@ -225,6 +225,7 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False):
             slice_data += fits.getdata(slice_fn)
     
     umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
+    umask_slice_data[np.where(np.isnan(umask_slice_data)==True)] = 0 # zero out nans
     
     return umask_slice_data
     
