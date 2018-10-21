@@ -291,7 +291,7 @@ def stack_on_RHT():
         
     for _v in [11]: # of 21
         print("running velocity {}".format(_v))
-        for _thet in np.arange(165): # of 165
+        for _thet in np.arange(0, 30): # of 165
         
             slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
         
@@ -319,9 +319,8 @@ def stack_on_RHT():
                 time1 = time.time()
             
                 print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
-            
 
-if __name__ == "__main__":
+def stack_on_USM():
     biastest=False
     centerweight=True
     bstart=30
@@ -358,7 +357,11 @@ if __name__ == "__main__":
     weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
     np.save(weight_slice_fn, weightslice)
 
-    time1 = time.time()    
+    time1 = time.time()   
+
+
+if __name__ == "__main__":
+    stack_on_RHT()
 
 
         
