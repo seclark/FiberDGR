@@ -39,7 +39,10 @@ def load_2d_data(datatype="NHI90"):
                "Rad": planck_data_root+"COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits",
                "P857": planck_data_root+"HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits",
                "COM545": planck_data_root+"COM_CompMap_Dust-GNILC-F545_2048_R2.00_ONGALFAHI.fits",
-               "Halpha": planck_data_root+"Halpha_finkbeiner03_proj_on_DR2.fits"
+               "Halpha": planck_data_root+"Halpha_finkbeiner03_proj_on_DR2.fits",
+               "Tau353": planck_data_root+"COM_CompMap_Dust-GNILC-Model-Opacity_2048_R2.00_ONGALFAHI.fits",
+               "COM353": planck_data_root+"COM_CompMap_Dust-GNILC-F353_2048_R2.00_ONGALFAHI.fits",
+               "COM857": planck_data_root+"COM_CompMap_Dust-GNILC-F857_2048_R2.00_ONGALFAHI.fits"
               }
     
     fn = fn_dict[datatype]
@@ -286,12 +289,12 @@ def stack_on_RHT():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
-        
-        
+    #datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+    datatypelist = ["Tau353", "COM353", "COM857"]
+            
     for _v in [10]: # of 21
         print("running velocity {}".format(_v))
-        for _thet in np.arange(150, 165): # of 165
+        for _thet in np.arange(0, 50): # of 165
         
             slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
         
