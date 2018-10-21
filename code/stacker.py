@@ -4,6 +4,10 @@ from astropy.io import fits
 import time
 import os.path
 
+import sys 
+sys.path.insert(0, '../../GalfaCuber/code')
+import galfa_vel_helpers
+
 class HyperCube():
     """
     hyper cube class, possible dimensions (ra x dec x vel x theta)
