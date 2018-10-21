@@ -81,10 +81,10 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
         
         # cut based on RHT intensity. Need to subtract threshold! (Because RHT data is intensity over given thresh)
         thresh = 0.7
-        print("before z cut, npix = {}".format(len(np.nonzero(velthet)[0])))
+        print("before z cut, npix = {}".format(len(np.nonzero(stackon_data)[0])))
         stackon_data[np.where(velthet < (zstart - thresh))] = 0 
         stackon_data[np.where(velthet > (zstop - thresh))] = 0
-        print("after z cut, npix = {}".format(len(np.nonzero(velthet)[0])))
+        print("after z cut, npix = {}".format(len(np.nonzero(stackon_data)[0])))
     
     # Stack on all nonzero pixels
     nonzeroyx = np.nonzero(stackon_data)
@@ -120,7 +120,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerwei
             else:
                 centerval = 1.0
         else:
-            centerval = velthet[_y, _x]
+            centerval = stackon_data[_y, _x]
             
             startx = np.int(max(0, _x - cubehalfx))
             stopx = np.int(min(maxnx, _x + cubehalfx + 1))
@@ -320,42 +320,43 @@ def stack_on_RHT():
                 print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
             
 
-biastest=False
-centerweight=True
-bstart=30
-bstop=90
-absbcut=True
+if __name__ == "__main__":
+    biastest=False
+    centerweight=True
+    bstart=30
+    bstop=90
+    absbcut=True
 
-if biastest is True:
-    zstart=0.91
-    zstop=0.94
-else:
-    zstart = 0.7
-    zstop = 1.0
-    
-# all desired data to be stacked
-datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
-vels=["1024"]
+    if biastest is True:
+        zstart=0.91
+        zstop=0.94
+    else:
+        zstart = 0.7
+        zstop = 1.0
+        
+    # all desired data to be stacked
+    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+    vels=["1024"]
 
-# find data to stack on
-fwhm_arcmin = 30
-umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True)
-nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+    # find data to stack on
+    fwhm_arcmin = 30
+    umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True)
+    nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
-velstr="{}".format(vels[0])
+    velstr="{}".format(vels[0])
 
-# stack data
-for _datatype in datatypelist:
-    stackthese_data = load_2d_data(datatype=_datatype)
-    stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-    slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-    np.save(slice_fn, stackslice)
+    # stack data
+    for _datatype in datatypelist:
+        stackthese_data = load_2d_data(datatype=_datatype)
+        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        np.save(slice_fn, stackslice)
 
-weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
-weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-np.save(weight_slice_fn, weightslice)
+    weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
+    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+    np.save(weight_slice_fn, weightslice)
 
-time1 = time.time()    
+    time1 = time.time()    
 
-    
-    
+        
+        
