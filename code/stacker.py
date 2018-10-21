@@ -196,8 +196,39 @@ def get_vel_theta_slice(vel_i, theta_i):
     velthet = fits.getdata(velthet_fn)
     
     return velthet
+
+def gaussian_umask(data, fwhm=10, zeroed=False):
+    """
+    fwhm in arcmin aka pixels
+    """
+    sigma = fwhm/(2*np.sqrt(2*np.log(2)))
+    smoothdata = ndimage.filters.gaussian_filter(data, sigma=sigma)
+    
+    umask = data - smoothdata
+    if zeroed:
+        umask[np.where(umask < 0)] = 0
+    return umask
+    
+def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False):
+    DR2_Wide_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Wide/"
+    
+    vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
+    slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+    slice_data = fits.getdata(slice_fn)
+    
+    # if longer than one slice, add the rest
+    if len(vels) > 1:
+        for _vel in vels[1:]:
+            velkms = galfa_vel_helpers.galfa_name_dict[_vel]
+            slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
+            slice_data += fits.getdata(slice_fn)
+    
+    umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
+    
+    return umask_slice_data
+    
         
-def get_slice_fn(v, thet, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
+def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -216,59 +247,97 @@ def get_slice_fn(v, thet, cubetype="nhi", biastest=False, centerweight=True, abs
         slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, _v, _thet, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
     
     return slice_fn
-
-
-
-
-biastest=False
-centerweight=True
-bstart=30
-bstop=90
-absbcut=True
-
-if biastest is True:
-    zstart=0.91
-    zstop=0.94
-else:
-    zstart = 0.7
-    zstop = 1.0
     
-# all desired data to be stacked
-datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
     
+    if absbcut:
+        absbcut_str = "absb_"
+    else:
+        absbcut_str = ""
     
-for _v in [11]: # of 21
-    print("running velocity {}".format(_v))
-    for _thet in np.arange(165): # of 165
+    if centerweight:
+        centervalstr = "_centerw"
+    else:
+        centervalstr = ""
     
-        slice_fn = get_slice_fn(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-    
-        if os.path.isfile(slice_fn):
-            print("v {}, t {}, bstart {}, bstop {}, absbcut {}, zstart {}, zstop {} already exists".format(_v, _thet, bstart, bstop, absbcut, zstart, zstop))
-            
-        else:
-            time0 = time.time()
-            
-            # find data to stack on
-            velthet = get_vel_theta_slice(_v, _thet)
-            nonzeroy, nonzerox = prep_stack_on_data(velthet, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
-            
-            # stack data
-            for _datatype in datatypelist:
-                stackthese_data = load_2d_data(datatype=_datatype)
-                stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-                slice_fn = get_slice_fn(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-                np.save(slice_fn, stackslice)
-            
-            weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
-            weight_slice_fn = get_slice_fn(_v, _thet, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-            np.save(weight_slice_fn, weightslice)
-            
-            time1 = time.time()
+    if biastest is False:
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM_{}_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, fwhm, chanstr, absbcut_str, bstart, bstop, centervalstr)
         
-            print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
+    if biastest is True:
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM_{}_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, fwhm, chanstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+    
+    return slice_fn
+
+
+def stack_on_RHT():
+    biastest=False
+    centerweight=True
+    bstart=30
+    bstop=90
+    absbcut=True
+
+    if biastest is True:
+        zstart=0.91
+        zstop=0.94
+    else:
+        zstart = 0.7
+        zstop = 1.0
+        
+    # all desired data to be stacked
+    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+        
+        
+    for _v in [11]: # of 21
+        print("running velocity {}".format(_v))
+        for _thet in np.arange(165): # of 165
+        
+            slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        
+            if os.path.isfile(slice_fn):
+                print("v {}, t {}, bstart {}, bstop {}, absbcut {}, zstart {}, zstop {} already exists".format(_v, _thet, bstart, bstop, absbcut, zstart, zstop))
+                
+            else:
+                time0 = time.time()
+                
+                # find data to stack on
+                velthet = get_vel_theta_slice(_v, _thet)
+                nonzeroy, nonzerox = prep_stack_on_data(velthet, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+                
+                # stack data
+                for _datatype in datatypelist:
+                    stackthese_data = load_2d_data(datatype=_datatype)
+                    stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+                    slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+                    np.save(slice_fn, stackslice)
+                
+                weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
+                weight_slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+                np.save(weight_slice_fn, weightslice)
+                
+                time1 = time.time()
             
+                print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
             
+
+# find data to stack on
+fwhm_arcmin = 30
+umask_slice_data = get_USM_slice(vels=["1024"], fwhm=fwhm_arcmin, zeroed=True)
+nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+
+velstr="{}".format(vels[0])
+
+# stack data
+for _datatype in datatypelist:
+    stackthese_data = load_2d_data(datatype=_datatype)
+    stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+    slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+    np.save(slice_fn, stackslice)
+
+weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
+weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+np.save(weight_slice_fn, weightslice)
+
+time1 = time.time()    
 
     
     
