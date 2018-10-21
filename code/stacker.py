@@ -210,10 +210,10 @@ def get_slice_fn(v, thet, cubetype="nhi", biastest=False, centerweight=True, abs
         centervalstr = ""
     
     if biastest is False:
-        slice_fn = "temp_hcube_slices/hypercube_{}_v{}_t{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, _v, _thet, absbcut_str, bstart, bstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_v{}_t{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, _v, _thet, absbcut_str, bstart, bstop, centervalstr)
         
     if biastest is True:
-        slice_fn = "temp_hcube_slices/biastest_zcut/hypercube_{}_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, _v, _thet, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_v{}_t{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, _v, _thet, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
     
     return slice_fn
 
