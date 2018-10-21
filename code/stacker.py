@@ -320,6 +320,22 @@ def stack_on_RHT():
                 print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
             
 
+biastest=False
+centerweight=True
+bstart=30
+bstop=90
+absbcut=True
+
+if biastest is True:
+    zstart=0.91
+    zstop=0.94
+else:
+    zstart = 0.7
+    zstop = 1.0
+    
+# all desired data to be stacked
+datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+
 # find data to stack on
 fwhm_arcmin = 30
 umask_slice_data = get_USM_slice(vels=["1024"], fwhm=fwhm_arcmin, zeroed=True)
