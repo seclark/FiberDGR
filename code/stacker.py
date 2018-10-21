@@ -105,7 +105,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerwei
     maxny, maxnx = stackon_data.shape
     
     # square to be stacked into
-    stackslice = np.zeros((ny, nx), np.float_)
+    stackslice = np.zeros((cubeny, cubenx), np.float_)
     cubehalfx = np.int(np.floor(cubenx/2.0))
     cubehalfy = np.int(np.floor(cubeny/2.0))
     
