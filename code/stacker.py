@@ -336,7 +336,7 @@ def stack_on_USM():
         
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
-    vels=["1023", "1024", "1025"]
+    vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1024"]
 
     # find data to stack on
@@ -357,11 +357,13 @@ def stack_on_USM():
     weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
     np.save(weight_slice_fn, weightslice)
 
-    time1 = time.time()   
+    time1 = time.time()
+    print("finished stacking on USM. Took {} min.".format( (time1-time0)/60.) )   
 
 
 if __name__ == "__main__":
-    stack_on_RHT()
+    #stack_on_RHT()
+    stack_on_USM()
 
 
         
