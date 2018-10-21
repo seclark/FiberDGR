@@ -50,7 +50,7 @@ def load_lats():
     """
     load a map of all b values in GALFA-HI footprint 
     """
-    bees = np.load("all_galactic_latitudes_galfanhi.npy")
+    bees = np.load("../all_galactic_latitudes_galfanhi.npy")
     
     return bees
 
