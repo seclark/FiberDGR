@@ -335,10 +335,11 @@ else:
     
 # all desired data to be stacked
 datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+vels=["1024"]
 
 # find data to stack on
 fwhm_arcmin = 30
-umask_slice_data = get_USM_slice(vels=["1024"], fwhm=fwhm_arcmin, zeroed=True)
+umask_slice_data = get_USM_slice(vels=vels fwhm=fwhm_arcmin, zeroed=True)
 nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
 velstr="{}".format(vels[0])
