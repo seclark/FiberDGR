@@ -237,7 +237,7 @@ else:
 datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
     
     
-for _v in [9]: # of 21
+for _v in [10]: # of 21
     print("running velocity {}".format(_v))
     for _thet in np.arange(165): # of 165
     
