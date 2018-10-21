@@ -96,7 +96,7 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
     return nonzeroy, nonzerox
     
 
-def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerweight=True, verbose=False, cubenx=101, cubeny=101):
+def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, centerweight=True, verbose=False, cubenx=101, cubeny=101, weightsslice=False):
     """
     stack data
     """
