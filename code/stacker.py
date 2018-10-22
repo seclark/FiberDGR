@@ -340,7 +340,7 @@ def stack_on_USM():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["NHI90"]#, "NHI400", "Rad", "P857", "COM545", "Halpha"]
+    datatypelist = ["COM353", "COM857"]#["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     vels=["1023", "1024", "1025"]
     #vels=["1024"]
