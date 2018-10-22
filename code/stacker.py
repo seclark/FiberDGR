@@ -291,9 +291,9 @@ def stack_on_RHT():
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "Tau353", "COM353", "COM857"]
             
-    for _v in [10]: # of 21
+    for _v in [9]: # of 21
         print("running velocity {}".format(_v))
-        for _thet in np.arange(100, 165): # of 165
+        for _thet in np.arange(0, 165): # of 165
         
             slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
         
