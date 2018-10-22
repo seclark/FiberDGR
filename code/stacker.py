@@ -340,7 +340,7 @@ def stack_on_USM():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+    datatypelist = ["NHI90"]#, "NHI400", "Rad", "P857", "COM545", "Halpha"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     vels=["1023", "1024", "1025"]
     #vels=["1024"]
@@ -357,11 +357,11 @@ def stack_on_USM():
     print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
 
     # stack data
-    #for _datatype in datatypelist:
-    #    stackthese_data = load_2d_data(datatype=_datatype)
-    #    stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-    #    slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-    #    np.save(slice_fn, stackslice)
+    for _datatype in datatypelist:
+        stackthese_data = load_2d_data(datatype=_datatype)
+        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
     weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
