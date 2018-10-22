@@ -176,6 +176,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
             # set into cubes, dealing w/ RA wrap
             if RAedgeflag:
                 if weightsslice:
+                    stackslice[smallstarty:smallstopy, smallstartx2:] += centerval
                     stackslice[smallstarty:smallstopy, smallstartx1:smallstartx2] += centerval 
                 else:
                     # stack 2d data into hypercube
@@ -187,11 +188,8 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                 if weightsslice:
                     stackslice[smallstarty:smallstopy, :] += centerval 
                 else:
-                    try:
-                        stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
-                        
-                    except:
-                        print(smallstarty, smallstopy, )         
+                    stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
+       
         
     return stackslice
 
@@ -330,7 +328,7 @@ def stack_on_RHT():
 def stack_on_USM():
     biastest=False
     centerweight=True
-    bstart=60
+    bstart=30
     bstop=90
     absbcut=True
 
@@ -359,11 +357,11 @@ def stack_on_USM():
     print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
 
     # stack data
-    for _datatype in datatypelist:
-        stackthese_data = load_2d_data(datatype=_datatype)
-        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
-        np.save(slice_fn, stackslice)
+    #for _datatype in datatypelist:
+    #    stackthese_data = load_2d_data(datatype=_datatype)
+    #    stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
+    #    slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+    #    np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
     weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
@@ -374,8 +372,8 @@ def stack_on_USM():
 
 
 if __name__ == "__main__":
-    stack_on_RHT()
-    #stack_on_USM()
+    #stack_on_RHT()
+    stack_on_USM()
 
 
         
