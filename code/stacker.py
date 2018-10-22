@@ -277,7 +277,7 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
 def stack_on_RHT():
     biastest=False
     centerweight=True
-    bstart=30
+    bstart=60
     bstop=90
     absbcut=True
 
@@ -291,7 +291,7 @@ def stack_on_RHT():
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "Tau353", "COM353", "COM857"]
             
-    for _v in [11]: # of 21
+    for _v in [10]: # of 21
         print("running velocity {}".format(_v))
         for _thet in np.arange(0, 50): # of 165
         
