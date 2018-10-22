@@ -325,7 +325,7 @@ def stack_on_RHT():
 def stack_on_USM():
     biastest=False
     centerweight=True
-    bstart=30
+    bstart=60
     bstop=90
     absbcut=True
 
@@ -366,8 +366,8 @@ def stack_on_USM():
 
 
 if __name__ == "__main__":
-    stack_on_RHT()
-    #stack_on_USM()
+    #stack_on_RHT()
+    stack_on_USM()
 
 
         
