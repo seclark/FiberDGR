@@ -293,7 +293,7 @@ def stack_on_RHT():
             
     for _v in [9]: # of 21
         print("running velocity {}".format(_v))
-        for _thet in np.arange(50, 100): # of 165
+        for _thet in np.arange(0, 50): # of 165
         
             slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
         
@@ -366,8 +366,8 @@ def stack_on_USM():
 
 
 if __name__ == "__main__":
-    #stack_on_RHT()
-    stack_on_USM()
+    stack_on_RHT()
+    #stack_on_USM()
 
 
         
