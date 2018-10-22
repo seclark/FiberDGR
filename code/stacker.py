@@ -350,6 +350,8 @@ def stack_on_USM():
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
     velstr="{}_{}".format(vels[0], vels[-1])
+    
+    print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
 
     # stack data
     for _datatype in datatypelist:
