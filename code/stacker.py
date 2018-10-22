@@ -187,7 +187,11 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                 if weightsslice:
                     stackslice[smallstarty:smallstopy, :] += centerval 
                 else:
-                    stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]             
+                    try:
+                        stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
+                        
+                    except:
+                        print(smallstarty, smallstopy, )         
         
     return stackslice
 
@@ -289,7 +293,7 @@ def stack_on_RHT():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "Tau353", "COM353", "COM857"]
+    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "COM353", "COM857"] #"Tau353", 
             
     for _v in [9]: # of 21
         print("running velocity {}".format(_v))
