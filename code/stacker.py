@@ -291,7 +291,7 @@ def stack_on_RHT():
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "Tau353", "COM353", "COM857"]
             
-    for _v in [11]: # of 21
+    for _v in [10]: # of 21
         print("running velocity {}".format(_v))
         for _thet in np.arange(0, 165): # of 165
         
@@ -306,6 +306,7 @@ def stack_on_RHT():
                 # find data to stack on
                 velthet = get_vel_theta_slice(_v, _thet)
                 nonzeroy, nonzerox = prep_stack_on_data(velthet, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+                print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
                 
                 # stack data
                 for _datatype in datatypelist:
@@ -369,8 +370,8 @@ def stack_on_USM():
 
 
 if __name__ == "__main__":
-    #stack_on_RHT()
-    stack_on_USM()
+    stack_on_RHT()
+    #stack_on_USM()
 
 
         
