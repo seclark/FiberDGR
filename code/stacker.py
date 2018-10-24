@@ -242,10 +242,10 @@ def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=
         centervalstr = ""
     
     if biastest is False:
-        hcube_fn = "../hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
+        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
         
     if biastest is True:
-        hcube_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
     
     return hcube_fn
 
