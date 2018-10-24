@@ -421,7 +421,11 @@ def assemble_hypercube():
 if __name__ == "__main__":
     #stack_on_RHT()
     #stack_on_USM()
-    assemble_hypercube()
+    #assemble_hypercube()
+    datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha"]
+    for _datatype in datatypelist:
+        stackthese_data = load_2d_data(datatype=_datatype)
+        print("sum {} = {}".format(_datatype, np.sum(stackthese_data)))
 
 
         
