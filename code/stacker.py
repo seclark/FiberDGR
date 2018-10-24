@@ -18,10 +18,6 @@ class HyperCube():
         self.ny = ny
         self.nvel = nvel
         self.ntheta = ntheta
-        self.singlecube = singlecube
-        
-        self.cubehalfx = np.int(np.floor(nx/2.0))
-        self.cubehalfy = np.int(np.floor(ny/2.0))
         
         self.hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
