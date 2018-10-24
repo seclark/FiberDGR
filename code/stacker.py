@@ -354,7 +354,7 @@ def stack_on_USM():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["COM353", "COM857"]#, "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
+    datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
@@ -364,7 +364,7 @@ def stack_on_USM():
     time0 = time.time()
 
     # find data to stack on
-    fwhm_arcmin = 30
+    fwhm_arcmin = 60
     umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True)
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
