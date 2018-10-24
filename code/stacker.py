@@ -234,7 +234,25 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False):
     
     return umask_slice_data
     
+def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
+    if absbcut:
+        absbcut_str = "absb_"
+    else:
+        absbcut_str = ""
+    
+    if centerweight:
+        centervalstr = "_centerw"
+    else:
+        centervalstr = ""
+    
+    if biastest is False:
+        hcube_fn = "../temp_hcube_slices/hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
         
+    if biastest is True:
+        hcube_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+    
+    return hcube_fn
+
 def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
     
     if absbcut:
@@ -370,11 +388,43 @@ def stack_on_USM():
 
     time1 = time.time()
     print("finished stacking on USM. Took {} min.".format( (time1-time0)/60.) )   
+    
+def assemble_hypercube():
+    biastest=False
+    centerweight=True
+    bstart=60
+    bstop=90
+    absbcut=True
 
+    if biastest is True:
+        zstart=0.91
+        zstop=0.94
+    else:
+        zstart = 0.7
+        zstop = 1.0
+    
+    vels = [9, 10, 11]
+    hcube = HyperCube(nx=101, ny=101, nvel=len(vels), ntheta=165)
+    
+    datatypelist = ["NHI90", "NHI400", "Rad", "P857"]
+    for _datatype in datatypelist:
+        
+        for _v in vels:
+            for _thet in np.arange(0, 165): # of 165
+            
+                slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+            
+                if os.path.isfile(slice_fn):
+                    hcube[:, :, _v, _thet] = np.load(slice_fn)
+        
+        hcube_fn = get_hcube_fn_RHT(cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        np.save(hcube_fn, hcube)
+    
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    stack_on_USM()
+    #stack_on_USM()
+    assemble_hypercube()
 
 
         
