@@ -242,7 +242,7 @@ def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=
         centervalstr = ""
     
     if biastest is False:
-        hcube_fn = "../temp_hcube_slices/hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
+        hcube_fn = "../hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
         
     if biastest is True:
         hcube_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
@@ -402,7 +402,8 @@ def assemble_hypercube():
     vels = [9, 10, 11]
     hcube = HyperCube(nx=101, ny=101, nvel=len(vels), ntheta=165)
     
-    datatypelist = ["NHI90", "NHI400", "Rad", "P857"]
+    #datatypelist = ["NHI90", "NHI400", "Rad", "P857"]
+    datatypelist=["weights"]
     for _datatype in datatypelist:
         
         for _v in vels:
