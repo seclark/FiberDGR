@@ -357,7 +357,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
         backproj += velthet
     
     rht_velstr = galfa_vel_helpers.all_rht_velstrs[_v]
-    fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet))
+    fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet), backproj, NHIhdr)
             
 
 def stack_on_USM():
