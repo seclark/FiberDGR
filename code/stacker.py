@@ -23,7 +23,7 @@ class HyperCube():
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
 
-def load_2d_data(datatype="NHI90"):
+def load_2d_data(datatype="NHI90", header=False):
     """
     Load two-dimensional data to be stacked
     """
@@ -44,7 +44,10 @@ def load_2d_data(datatype="NHI90"):
     fn = fn_dict[datatype]
     data_2d = fits.getdata(fn)
     
-    return data_2d
+    if header:
+        return data_2d, fits.getheader(fn)
+    else:
+        return data_2d
 
 def load_lats():
     """
@@ -338,6 +341,24 @@ def stack_on_RHT():
                 time1 = time.time()
             
                 print("finished with velocity {} of 20, thet {} of 164. Took {} min.".format(_v, _thet, (time1-time0)/60.))
+                
+def make_RHT_backprojection(startthet=20, stopthet=145):
+    
+    NHI, NHIhdr = load_2d_data(datatype="NHI90", header=True)
+    backproj = np.zeros(NHI.shape)
+    
+    _v = 10
+    print("running velocity {}".format(_v))
+    for _thet in np.arange(0+startthet, 165+stopthet): # of 165
+    
+        # find data to stack on
+        velthet = get_vel_theta_slice(_v, _thet)
+        
+        backproj += velthet
+    
+    rht_velstr = galfa_vel_helpers.all_rht_velstrs[_v]
+    fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet))
+            
 
 def stack_on_USM():
     biastest=False
@@ -421,8 +442,10 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    stack_on_USM()
+    #stack_on_USM()
     #assemble_hypercube()
+    
+    make_RHT_backprojection(startthet=20, stopthet=145)
     
     
 
