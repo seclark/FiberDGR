@@ -349,7 +349,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
     
     _v = 10
     print("running velocity {}".format(_v))
-    for _thet in np.arange(0+startthet, 165+stopthet): # of 165
+    for _thet in np.arange(startthet, stopthet): # of 165
     
         # find data to stack on
         velthet = get_vel_theta_slice(_v, _thet)
