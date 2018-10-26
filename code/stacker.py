@@ -385,7 +385,7 @@ def stack_on_USM():
     time0 = time.time()
 
     # find data to stack on
-    fwhm_arcmin = 60
+    fwhm_arcmin = 4
     umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True)
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
@@ -442,10 +442,10 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    #stack_on_USM()
+    stack_on_USM()
     #assemble_hypercube()
     
-    make_RHT_backprojection(startthet=20, stopthet=145)
+    #make_RHT_backprojection(startthet=20, stopthet=145)
     
     
 
