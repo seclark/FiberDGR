@@ -214,19 +214,23 @@ def gaussian_umask(data, fwhm=10, zeroed=False):
         umask[np.where(umask < 0)] = 0
     return umask
     
-def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False):
-    DR2_Wide_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Wide/"
-    
-    vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
-    slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
-    slice_data = fits.getdata(slice_fn)
-    
-    # if longer than one slice, add the rest
-    if len(vels) > 1:
-        for _vel in vels[1:]:
-            velkms = galfa_vel_helpers.galfa_name_dict[_vel]
-            slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
-            slice_data += fits.getdata(slice_fn)
+def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False):
+    if Narrow:
+        Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
+        slice_data = fits.getdata(Narrow_slice_fn)
+    else:
+        DR2_Wide_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Wide/"
+        
+        vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
+        slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+        slice_data = fits.getdata(slice_fn)
+        
+        # if longer than one slice, add the rest
+        if len(vels) > 1:
+            for _vel in vels[1:]:
+                velkms = galfa_vel_helpers.galfa_name_dict[_vel]
+                slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
+                slice_data += fits.getdata(slice_fn)
     
     umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
     umask_slice_data[np.where(np.isnan(umask_slice_data)==True)] = 0 # zero out nans
@@ -272,7 +276,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -283,12 +287,17 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
         centervalstr = "_centerw"
     else:
         centervalstr = ""
+        
+    if Narrow:
+        Narrowstr = "Narrow"
+    else:
+        Narrowstr = ""
     
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM_{}_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, fwhm, chanstr, absbcut_str, bstart, bstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM_{}_{}{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM_{}_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, fwhm, chanstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
     
     return slice_fn
 
@@ -366,6 +375,7 @@ def stack_on_USM():
     bstart=30
     bstop=90
     absbcut=True
+    Narrow=True
 
     if biastest is True:
         zstart=0.91
@@ -376,17 +386,17 @@ def stack_on_USM():
         
     # all desired data to be stacked
     datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
-    vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
+    #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    vels=["1024"]
     
     time0 = time.time()
 
     # find data to stack on
-    fwhm_arcmin = 4
-    umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True)
+    fwhm_arcmin = 30
+    umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True, Narrow=Narrow)
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
     velstr="{}_{}".format(vels[0], vels[-1])
@@ -397,7 +407,7 @@ def stack_on_USM():
     for _datatype in datatypelist:
         stackthese_data = load_2d_data(datatype=_datatype)
         stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow)
         np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
