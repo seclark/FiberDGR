@@ -219,18 +219,23 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False):
         Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
         slice_data = fits.getdata(Narrow_slice_fn)
     else:
-        DR2_Wide_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Wide/"
-        
-        vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
-        slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
-        slice_data = fits.getdata(slice_fn)
-        
-        # if longer than one slice, add the rest
-        if len(vels) > 1:
-            for _vel in vels[1:]:
-                velkms = galfa_vel_helpers.galfa_name_dict[_vel]
-                slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
-                slice_data += fits.getdata(slice_fn)
+        if vels="NHI":
+            print("USM of total NHI map")
+            slice_data = load_2d_data(datatype="NHI90", header=False)
+            
+        else:
+            DR2_Wide_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Wide/"
+            
+            vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
+            slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+            slice_data = fits.getdata(slice_fn)
+            
+            # if longer than one slice, add the rest
+            if len(vels) > 1:
+                for _vel in vels[1:]:
+                    velkms = galfa_vel_helpers.galfa_name_dict[_vel]
+                    slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
+                    slice_data += fits.getdata(slice_fn)
     
     umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
     umask_slice_data[np.where(np.isnan(umask_slice_data)==True)] = 0 # zero out nans
@@ -375,7 +380,7 @@ def stack_on_USM():
     bstart=30
     bstop=90
     absbcut=True
-    Narrow=True
+    Narrow=False
 
     if biastest is True:
         zstart=0.91
@@ -390,7 +395,8 @@ def stack_on_USM():
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    vels=["1024"]
+    #vels=["1024"]
+    vels="NHI"
     
     time0 = time.time()
 
