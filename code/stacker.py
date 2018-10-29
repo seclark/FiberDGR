@@ -219,7 +219,7 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False):
         Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
         slice_data = fits.getdata(Narrow_slice_fn)
     else:
-        if vels="NHI":
+        if vels=="NHI":
             print("USM of total NHI map")
             slice_data = load_2d_data(datatype="NHI90", header=False)
             
