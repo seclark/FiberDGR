@@ -214,7 +214,7 @@ def gaussian_umask(data, fwhm=10, zeroed=False):
         umask[np.where(umask < 0)] = 0
     return umask
     
-def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False):
+def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=False):
     if Narrow:
         Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
         slice_data = fits.getdata(Narrow_slice_fn)
@@ -236,8 +236,15 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False):
                     velkms = galfa_vel_helpers.galfa_name_dict[_vel]
                     slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
                     slice_data += fits.getdata(slice_fn)
-    
-    umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
+                    
+    if reverse:
+        umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=False)
+        umask_slice_data *= -1
+        umask_slice_data[np.where(umask_slice_data < 0)] = 0
+        
+    else:
+        umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
+        
     umask_slice_data[np.where(np.isnan(umask_slice_data)==True)] = 0 # zero out nans
     
     return umask_slice_data
@@ -281,7 +288,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -298,11 +305,16 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
     else:
         Narrowstr = ""
     
+    if reverse:
+        reversestr = "_reverse"
+    else:
+        reversestr = ""
+    
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM_{}_{}{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
     
     return slice_fn
 
@@ -381,6 +393,7 @@ def stack_on_USM():
     bstop=90
     absbcut=True
     Narrow=False
+    reverse=True
 
     if biastest is True:
         zstart=0.91
@@ -395,14 +408,14 @@ def stack_on_USM():
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
-    vels="NHI"
+    vels=["1024"]
+    #vels="NHI"
     
     time0 = time.time()
 
     # find data to stack on
     fwhm_arcmin = 30
-    umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True, Narrow=Narrow)
+    umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True, Narrow=Narrow, reverse=reverse)
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
 
     velstr="{}_{}".format(vels[0], vels[-1])
@@ -413,11 +426,11 @@ def stack_on_USM():
     for _datatype in datatypelist:
         stackthese_data = load_2d_data(datatype=_datatype)
         stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse)
         np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
-    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse)
     np.save(weight_slice_fn, weightslice)
 
     time1 = time.time()
