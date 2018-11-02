@@ -218,15 +218,17 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
     if Narrow:
         DR2_Narrow_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Narrow/"
         DR2_Narrow_vels = np.loadtxt("/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/GALFA-HI_vlsr_Narrow.txt")
-
-        vel0kms = DR2_Narrow_vels[np.int(vels[0])]
-        slice_fn = DR2_Narrow_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+        
+        vels_Narrow_dict = {"1024", "0000.1"}
+        
+        vel0kms = vels_Narrow_dict[vels[0]]
+        slice_fn = DR2_Narrow_slice_root+"GALFA_HI_N_S{}_V{}kms.fits".format(vels[0], vel0kms)
         slice_data = fits.getdata(slice_fn)
         # if longer than one slice, add the rest
         if len(vels) > 1:
             for _vel in vels[1:]:
-                velkms = DR2_Narrow_vels[_vel]
-                slice_fn = DR2_Narrow_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
+                velkms = vels_Narrow_dict[_vel]
+                slice_fn = DR2_Narrow_slice_root+"GALFA_HI_N_S{}_V{}kms.fits".format(_vel, velkms)
                 slice_data += fits.getdata(slice_fn)
         
         #Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
