@@ -257,7 +257,7 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
     
     if writemap:
         outfn = DR2_Wide_slice_root+"GALFA_HI_W_vels{}_to_{}_USM{}_zeroed_{}.fits".format(vels[0], vels[-1], fwhm, zeroed)
-        outhdr= fits.getheader(DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms))
+        outhdr= fits.getheader(DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms))
         fits.write_to(outfn, umask_slice_data, outhdr)
     
     return umask_slice_data
