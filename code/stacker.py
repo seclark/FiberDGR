@@ -218,12 +218,17 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
     if Narrow:
         DR2_Narrow_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Narrow/"
         DR2_Narrow_vels = np.loadtxt("/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/GALFA-HI_vlsr_Narrow.txt")
-        
-        # you are here
-        
-        vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
-        slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+
+        vel0kms = DR2_Narrow_vels[vels[0]]
+        slice_fn = DR2_Narrow_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
         slice_data = fits.getdata(slice_fn)
+        # if longer than one slice, add the rest
+        if len(vels) > 1:
+            for _vel in vels[1:]:
+                velkms = DR2_Narrow_vels[_vel]
+                slice_fn = DR2_Narrow_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms)
+                slice_data += fits.getdata(slice_fn)
+        
         #Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
         #slice_data = fits.getdata(Narrow_slice_fn)
     else:
@@ -407,8 +412,8 @@ def stack_on_USM():
     bstart=30
     bstop=90
     absbcut=True
-    Narrow=False
-    reverse=True
+    Narrow=True
+    reverse=False
 
     if biastest is True:
         zstart=0.91
@@ -418,7 +423,8 @@ def stack_on_USM():
         zstop = 1.0
         
     # all desired data to be stacked
-    datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
+    #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
+    datatypelist = ["NHI90", "P857"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
@@ -486,11 +492,11 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    #stack_on_USM()
+    stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
-    get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True)
+    #get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True)
     
     
 
