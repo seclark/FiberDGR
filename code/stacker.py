@@ -411,7 +411,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
 def stack_on_USM():
     biastest=False
     centerweight=True
-    bstart=30
+    bstart=60
     bstop=90
     absbcut=True
     Narrow=True
