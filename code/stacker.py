@@ -219,7 +219,7 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
         DR2_Narrow_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Narrow/"
         DR2_Narrow_vels = np.loadtxt("/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/GALFA-HI_vlsr_Narrow.txt")
 
-        vel0kms = DR2_Narrow_vels[vels[0]]
+        vel0kms = DR2_Narrow_vels[np.int(vels[0])]
         slice_fn = DR2_Narrow_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
         slice_data = fits.getdata(slice_fn)
         # if longer than one slice, add the rest
