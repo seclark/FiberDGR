@@ -214,10 +214,18 @@ def gaussian_umask(data, fwhm=10, zeroed=False):
         umask[np.where(umask < 0)] = 0
     return umask
     
-def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=False):
+def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=False, writemap=False):
     if Narrow:
-        Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
-        slice_data = fits.getdata(Narrow_slice_fn)
+        DR2_Narrow_slice_root = "/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/data/Allsky_ChanMaps/Narrow/"
+        DR2_Narrow_vels = np.loadtxt("/disks/jansky/a/users/goldston/zheng/151019_NHImaps_SRcorr/GALFA-HI_vlsr_Narrow.txt")
+        
+        # you are here
+        
+        vel0kms = galfa_vel_helpers.galfa_name_dict[vels[0]]
+        slice_fn = DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(vels[0], vel0kms)
+        slice_data = fits.getdata(slice_fn)
+        #Narrow_slice_fn = "/disks/jansky/a/users/goldston/susan/Wide_maps/Allsky_Narrow/GALFA-HI_VLSR_460.1m_per_s.fits"
+        #slice_data = fits.getdata(Narrow_slice_fn)
     else:
         if vels=="NHI":
             print("USM of total NHI map")
@@ -246,6 +254,11 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
         umask_slice_data = gaussian_umask(slice_data, fwhm=fwhm, zeroed=zeroed)
         
     umask_slice_data[np.where(np.isnan(umask_slice_data)==True)] = 0 # zero out nans
+    
+    if writemap:
+        outfn = DR2_Wide_slice_root+"GALFA_HI_W_vels{}_to_{}_USM{}_zeroed_{}.fits".format(vels[0], vels[-1], fwhm, zeroed)
+        outhdr= fits.getheader(DR2_Wide_slice_root+"GALFA_HI_W_S{}_V{}kms.fits".format(_vel, velkms))
+        fits.write_to(outfn, umask_slice_data, outhdr)
     
     return umask_slice_data
     
@@ -333,6 +346,8 @@ def stack_on_RHT():
         zstart = 0.7
         zstop = 1.0
         
+    cubelen = 101
+        
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "COM353", "COM857"] #"Tau353", 
             
@@ -356,7 +371,7 @@ def stack_on_RHT():
                 # stack data
                 for _datatype in datatypelist:
                     stackthese_data = load_2d_data(datatype=_datatype)
-                    stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=False)
+                    stackslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen)
                     slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
                     np.save(slice_fn, stackslice)
                 
@@ -471,10 +486,11 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    stack_on_USM()
+    #stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
+    get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True)
     
     
 
