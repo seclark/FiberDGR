@@ -350,10 +350,7 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
     else:
         reversestr = ""
     
-    if cubelen != 101:
-        cubelenstr = "_cubelen{}".format(cubelen)
-    else:
-        cubelenstr = ""
+    cubelenstr = "_cubelen{}".format(cubelen)
         
     if bootstrapchunks is not False:
         bootstrapstr = "_BS{}_{}".format(bootstrapchunks, bsnum)
@@ -457,9 +454,9 @@ def stack_on_USM(bsnum=0):
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 201
+    cubelen = 101
     
-    bootstrapchunks = 40
+    bootstrapchunks = 20
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
