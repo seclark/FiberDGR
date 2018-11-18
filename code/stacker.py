@@ -23,7 +23,7 @@ class HyperCube():
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
 
-def load_2d_data(datatype="NHI90", header=False, nulltest=Falsewß):
+def load_2d_data(datatype="NHI90", header=False, nulltest=False):
     """
     Load two-dimensional data to be stacked
     """
