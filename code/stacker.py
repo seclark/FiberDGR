@@ -34,6 +34,7 @@ def load_2d_data(datatype="NHI90", header=False):
                "NHI400": nhi_data_root+"GALFA-HI_NHISRCORR_VLSR-400+400kms.fits",
                "Rad": planck_data_root+"COM_CompMap_Dust-GNILC-Radiance_2048_R2.00_ONGALFAHI.fits",
                "P857": planck_data_root+"HFI_SkyMap_857_2048_R2.02_full_ONGALFAHI.fits",
+               "P3_857": planck_data_root+"HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits",
                "COM545": planck_data_root+"COM_CompMap_Dust-GNILC-F545_2048_R2.00_ONGALFAHI.fits",
                "Halpha": planck_data_root+"Halpha_finkbeiner03_proj_on_DR2.fits",
                "Tau353": planck_data_root+"COM_CompMap_Dust-GNILC-Model-Opacity_2048_R2.00_ONGALFAHI.fits",
@@ -308,7 +309,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -330,11 +331,16 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
     else:
         reversestr = ""
     
+    if cubelen != 101:
+        cubelenstr = "_cubelen{}".format(cubelen)
+    else:
+        cubelenstr = ""
+    
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr)
     
     return slice_fn
 
@@ -382,7 +388,7 @@ def stack_on_RHT():
                     slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
                     np.save(slice_fn, stackslice)
                 
-                weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=True)
+                weightslice = stack_slicedata(stackthese_data, velthet, nonzeroy, nonzerox, centerweight=centerweight, biastest=biastest, verbose=False, weightsslice=True, cubenx=cubelen, cubeny=cubelen)
                 weight_slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
                 np.save(weight_slice_fn, weightslice)
                 
@@ -411,7 +417,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
 def stack_on_USM():
     biastest=False
     centerweight=True
-    bstart=60
+    bstart=30
     bstop=90
     absbcut=True
     Narrow=True
@@ -424,9 +430,11 @@ def stack_on_USM():
         zstart = 0.7
         zstop = 1.0
         
+    cubelen = 201
+        
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
-    datatypelist = ["NHI90", "P857"]
+    datatypelist = ["NHI90", "P3_857"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
@@ -448,12 +456,12 @@ def stack_on_USM():
     # stack data
     for _datatype in datatypelist:
         stackthese_data = load_2d_data(datatype=_datatype)
-        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse)
+        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen)
         np.save(slice_fn, stackslice)
 
-    weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True)
-    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse)
+    weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True, cubenx=cubelen, cubeny=cubelen)
+    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen)
     np.save(weight_slice_fn, weightslice)
 
     time1 = time.time()
