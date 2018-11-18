@@ -23,7 +23,7 @@ class HyperCube():
         self.weights_hypercube = np.zeros((self.ny, self.nx, self.nvel, self.ntheta), np.float_)
         
 
-def load_2d_data(datatype="NHI90", header=False):
+def load_2d_data(datatype="NHI90", header=False, nulltest=Falsewß):
     """
     Load two-dimensional data to be stacked
     """
@@ -45,10 +45,15 @@ def load_2d_data(datatype="NHI90", header=False):
     fn = fn_dict[datatype]
     data_2d = fits.getdata(fn)
     
+    # null test: reverse data along both axes
+    if nulltest:
+        data_2d = data_2d[::-1, ::-1]
+    
     if header:
         return data_2d, fits.getheader(fn)
     else:
         return data_2d
+        
 
 def load_lats():
     """
@@ -328,7 +333,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101, bootstrapchunks=False, bsnum=0):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101, bootstrapchunks=False, bsnum=0, nulltest=False):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -356,12 +361,17 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
         bootstrapstr = "_BS{}_{}".format(bootstrapchunks, bsnum)
     else:
         bootstrapstr = ""
+        
+    if nulltest:
+        nullteststr = "_nulltest"
+    else:
+        nullteststr = ""
     
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr, bootstrapstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr, bootstrapstr, nullteststr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr, bootstrapstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr, bootstrapstr, nullteststr)
     
     return slice_fn
 
@@ -456,7 +466,8 @@ def stack_on_USM(bsnum=0):
         
     cubelen = 101
     
-    bootstrapchunks = 20
+    bootstrapchunks = False
+    nulltest=True
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
@@ -481,13 +492,13 @@ def stack_on_USM(bsnum=0):
 
     # stack data
     for _datatype in datatypelist:
-        stackthese_data = load_2d_data(datatype=_datatype)
+        stackthese_data = load_2d_data(datatype=_datatype, nulltest=nulltest)
         stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum, nulltest=nulltest)
         np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True, cubenx=cubelen, cubeny=cubelen)
-    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
+    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum, nulltest=nulltest)
     np.save(weight_slice_fn, weightslice)
 
     time1 = time.time()
@@ -528,8 +539,9 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    for _bsnum in np.arange(40):
-        stack_on_USM(bsnum=_bsnum)
+    #for _bsnum in np.arange(40):
+    #    stack_on_USM(bsnum=_bsnum)
+    stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
