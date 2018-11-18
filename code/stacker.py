@@ -93,7 +93,7 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
         stackon_data[:, :startblockx] = 0
         stackon_data[:, stopblockx:] = 0
         
-        print("Bootstrapping has restricted npix in this block to {} nonzero pixels".format(np.nonzero(stackon_data)[0]))
+        print("Bootstrapping has restricted npix in this block to {} nonzero pixels".format(len(np.nonzero(stackon_data)[0])))
     
     # If cutting on RHT intensity
     if biastest is True:
@@ -457,7 +457,7 @@ def stack_on_USM(bsnum=0):
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 101
+    cubelen = 201
     
     bootstrapchunks = 40
         
