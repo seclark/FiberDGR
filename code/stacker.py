@@ -58,7 +58,7 @@ def load_lats():
     
     return bees
 
-def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, verbose=False):
+def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, verbose=False, bootstrapchunks=False, bsnum=0):
     
     # set bcut, if any -- this means that anything outside of the bcut won't be stacked on. but anything inside window will still be stacked.
     bstart = bcut[0]
@@ -75,6 +75,25 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
     else:
         stackon_data[np.where(bees < bstart)] = 0 
         stackon_data[np.where(bees > bstop)] = 0
+        
+    # If bootstrapping on chunks of data (in RA, DEC projection)
+    if bootstrapchunks is not False:
+        print("Bootstrapping into {} chunks".format(bootstrapchunks))
+        ny, nx = stackon_data.shape
+        nychunklen = np.int(ny/2.0)
+        nxchunklen = np.int(nx/(bootstrapchunks/2.0))
+        nxchunks = np.int(bootstrapchunks/2.0)
+        # restrict to top row
+        if bsnum < nxchunks:
+            stackon_data[0:nychunklen, :] = 0
+        else:
+            stackon_data[nychunklen:, :] = 0
+        startblockx = bsnum*nxchunklen
+        stopblockx = (bsnum+1)*nxchunklen
+        stackon_data[:, :startblockx] = 0
+        stackon_data[:, stopblockx:] = 0
+        
+        print("Bootstrapping has restricted npix in this block to {} nonzero pixels".format(np.nonzero(stackon_data)[0]))
     
     # If cutting on RHT intensity
     if biastest is True:
@@ -309,7 +328,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101, bootstrapchunks=False, bsnum=0):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -335,12 +354,17 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
         cubelenstr = "_cubelen{}".format(cubelen)
     else:
         cubelenstr = ""
+        
+    if bootstrapchunks is not False:
+        bootstrapstr = "_BS{}_{}".format(bootstrapchunks, bsnum)
+    else:
+        bootstrapstr = ""
     
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr, bootstrapstr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr, bootstrapstr)
     
     return slice_fn
 
@@ -360,6 +384,9 @@ def stack_on_RHT():
         zstop = 1.0
         
     cubelen = 101
+    
+    bootstrapchunks = 40
+    bsnum = 0
         
     # all desired data to be stacked
     datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "COM353", "COM857"] #"Tau353", 
@@ -378,7 +405,7 @@ def stack_on_RHT():
                 
                 # find data to stack on
                 velthet = get_vel_theta_slice(_v, _thet)
-                nonzeroy, nonzerox = prep_stack_on_data(velthet, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+                nonzeroy, nonzerox = prep_stack_on_data(velthet, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
                 print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
                 
                 # stack data
@@ -414,7 +441,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
     fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet), backproj, NHIhdr)
             
 
-def stack_on_USM():
+def stack_on_USM(bsnum=0):
     biastest=False
     centerweight=True
     bstart=30
@@ -430,7 +457,9 @@ def stack_on_USM():
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 501
+    cubelen = 201
+    
+    bootstrapchunks = 40
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
@@ -447,7 +476,7 @@ def stack_on_USM():
     # find data to stack on
     fwhm_arcmin = 30
     umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True, Narrow=Narrow, reverse=reverse)
-    nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False)
+    nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
 
     velstr="{}_{}".format(vels[0], vels[-1])
     
@@ -457,11 +486,11 @@ def stack_on_USM():
     for _datatype in datatypelist:
         stackthese_data = load_2d_data(datatype=_datatype)
         stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
         np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True, cubenx=cubelen, cubeny=cubelen)
-    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen)
+    weight_slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype="weights", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
     np.save(weight_slice_fn, weightslice)
 
     time1 = time.time()
@@ -502,7 +531,8 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    stack_on_USM()
+    for _bsnum in np.arange(40):
+        stack_on_USM(bsum=_bsnum)
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
