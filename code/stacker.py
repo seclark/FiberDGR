@@ -430,7 +430,7 @@ def stack_on_USM():
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 201
+    cubelen = 501
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
