@@ -63,6 +63,15 @@ def load_lats():
     
     return bees
     
+def interp_data(data):
+    """
+    interpolate over nans in image
+    """
+    nans, x = nan_helper(data)
+    data[nans] = np.interp(x(nans), x(~nans), data[~nans])
+
+    return data
+    
 def interp_rotate_square(data, rot_degrees):
     filled_data = interp_data(data)
     rot_interp_data = scipy.ndimage.interpolation.rotate(filled_data, rot_degrees, reshape=False, mode='nearest')
