@@ -454,7 +454,7 @@ def stack_on_USM(bsnum=0):
     bstart=30
     bstop=90
     absbcut=True
-    Narrow=True
+    Narrow=False
     reverse=False
 
     if biastest is True:
@@ -464,10 +464,10 @@ def stack_on_USM(bsnum=0):
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 101
+    cubelen = 201
     
-    bootstrapchunks = False
-    nulltest=True
+    bootstrapchunks = True
+    nulltest=False
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
