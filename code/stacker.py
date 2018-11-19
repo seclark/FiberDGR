@@ -493,7 +493,7 @@ def stack_on_USM(bsnum=0):
         
     cubelen = 101
     
-    bootstrapchunks = False
+    bootstrapchunks = True
     nulltest=False
     randomorient=True
         
@@ -572,9 +572,9 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    #for _bsnum in np.arange(40):
-    #    stack_on_USM(bsnum=_bsnum)
-    stack_on_USM()
+    for _bsnum in np.arange(40):
+        stack_on_USM(bsnum=_bsnum)
+    #stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
