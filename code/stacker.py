@@ -62,6 +62,12 @@ def load_lats():
     bees = np.load("../all_galactic_latitudes_galfanhi.npy")
     
     return bees
+    
+def interp_rotate_square(data, rot_degrees):
+    filled_data = interp_data(data)
+    rot_interp_data = scipy.ndimage.interpolation.rotate(filled_data, rot_degrees, reshape=False, mode='nearest')
+
+    return rot_interp_data
 
 def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, verbose=False, bootstrapchunks=False, bsnum=0):
     
@@ -124,7 +130,7 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
     return nonzeroy, nonzerox
     
 
-def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=False, centerweight=True, verbose=False, cubenx=101, cubeny=101, weightsslice=False):
+def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=False, centerweight=True, verbose=False, cubenx=101, cubeny=101, weightsslice=False, randomorient=False, orientints=None):
     """
     stack data
     """
@@ -138,7 +144,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
     cubehalfy = np.int(np.floor(cubeny/2.0))
     
     # Step through nonzero pixels
-    for (_y, _x) in zip(nonzeroy, nonzerox):
+    for _ixy, (_y, _x) in enumerate(zip(nonzeroy, nonzerox)):
         
         # the RHT value of the center pixel is the weight
         if biastest is True:
@@ -212,9 +218,12 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                 if weightsslice:
                     stackslice[smallstarty:smallstopy, :] += centerval 
                 else:
-                    stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
-       
-        
+                    if randomorient:
+                        orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
+                        stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
+                    else:
+                        stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
+                    
     return stackslice
 
 def get_vel_theta_slice(vel_i, theta_i):
@@ -333,7 +342,7 @@ def get_slice_fn_v_theta(v, thet, cubetype="nhi", biastest=False, centerweight=T
     
     return slice_fn
     
-def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101, bootstrapchunks=False, bsnum=0, nulltest=False):
+def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, Narrow=False, reverse=False, cubelen=101, bootstrapchunks=False, bsnum=0, nulltest=False, randomorient=False):
     
     if absbcut:
         absbcut_str = "absb_"
@@ -366,12 +375,17 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
         nullteststr = "_nulltest"
     else:
         nullteststr = ""
+        
+    if randomorient:
+        randomorientstr = "_randorient"
+    else:
+        randomorientstr = ""
     
     if biastest is False:
-        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr, bootstrapstr, nullteststr)
+        slice_fn = "../temp_hcube_slices/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, centervalstr, cubelenstr, bootstrapstr, nullteststr, randomorientstr)
         
     if biastest is True:
-        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr, bootstrapstr, nullteststr)
+        slice_fn = "../temp_hcube_slices/biastest_zcut/hypercube_{}_USM{}_{}_{}{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}{}{}{}.npy".format(cubetype, reversestr, fwhm, chanstr, Narrowstr, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, cubelenstr, bootstrapstr, nullteststr, randomorientstr)
     
     return slice_fn
 
@@ -468,6 +482,7 @@ def stack_on_USM(bsnum=0):
     
     bootstrapchunks = True
     nulltest=False
+    randomorient=True
         
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
@@ -489,12 +504,17 @@ def stack_on_USM(bsnum=0):
     velstr="{}_{}".format(vels[0], vels[-1])
     
     print("len nonzeros {}, {}".format(len(nonzeroy), len(nonzerox)))
+    
+    if randomorient:
+        orientints = np.random.randint(4, size=len(nonzeroy))
+    else:
+        orientints = None
 
     # stack data
     for _datatype in datatypelist:
         stackthese_data = load_2d_data(datatype=_datatype, nulltest=nulltest)
-        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen)
-        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum, nulltest=nulltest)
+        stackslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=False, cubenx=cubelen, cubeny=cubelen, randomorient=randomorient, orientints=orientints)
+        slice_fn = get_slice_fn_USM(fwhm_arcmin, velstr, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, Narrow=Narrow, reverse=reverse, cubelen=cubelen, bootstrapchunks=bootstrapchunks, bsnum=bsnum, nulltest=nulltest, randomorient=randomorient)
         np.save(slice_fn, stackslice)
 
     weightslice = stack_slicedata(stackthese_data, umask_slice_data, nonzeroy, nonzerox, centerweight=centerweight, verbose=False, weightsslice=True, cubenx=cubelen, cubeny=cubelen)
