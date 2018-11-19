@@ -63,6 +63,9 @@ def load_lats():
     
     return bees
     
+def nan_helper(y):
+    return np.isnan(y), lambda z: z.nonzero()[0]
+    
 def interp_data(data):
     """
     interpolate over nans in image
