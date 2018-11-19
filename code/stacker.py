@@ -503,8 +503,8 @@ def stack_on_USM(bsnum=0):
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
-    #vels=["1023", "1024", "1025"]
-    vels=["1024"]
+    vels=["1023", "1024", "1025"]
+    #vels=["1024"]
     #vels="NHI"
     
     time0 = time.time()
@@ -572,9 +572,9 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    for _bsnum in np.arange(40):
-        stack_on_USM(bsnum=_bsnum)
-    #stack_on_USM()
+    #for _bsnum in np.arange(40):
+    #    stack_on_USM(bsnum=_bsnum)
+    stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
