@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import numpy as np
 from astropy.io import fits
+import scipy
 from scipy import ndimage
 import time
 import os.path
