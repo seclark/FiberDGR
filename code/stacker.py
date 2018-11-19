@@ -480,7 +480,7 @@ def stack_on_USM(bsnum=0):
         
     cubelen = 201
     
-    bootstrapchunks = True
+    bootstrapchunks = False
     nulltest=False
     randomorient=True
         
