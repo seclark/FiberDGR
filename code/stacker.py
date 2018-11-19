@@ -494,7 +494,7 @@ def stack_on_USM(bsnum=0):
     cubelen = 201
     
     bootstrapchunks = False
-    nulltest=False
+    nulltest=True
     randomorient=True
         
     # all desired data to be stacked
