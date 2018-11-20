@@ -475,13 +475,12 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
     fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet), backproj, NHIhdr)
             
 
-def stack_on_USM(bsnum=0):
+def stack_on_USM(bsnum=0, bootstrapchunks=False):
     biastest=False
     centerweight=True
     bstart=30
     bstop=90
     absbcut=True
-    Narrow=True
     reverse=False
 
     if biastest is True:
@@ -492,9 +491,9 @@ def stack_on_USM(bsnum=0):
         zstop = 1.0
         
     cubelen = 101
-    
-    bootstrapchunks = False
-    nulltest=False
+
+    Narrow=False
+    nulltest=True
     randomorient=True
         
     # all desired data to be stacked
@@ -572,8 +571,10 @@ def assemble_hypercube():
 
 if __name__ == "__main__":
     #stack_on_RHT()
-    #for _bsnum in np.arange(40):
-    #    stack_on_USM(bsnum=_bsnum)
+    
+    #nchunks=40
+    #for _bsnum in np.arange(nchunks):
+    #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
     stack_on_USM()
     #assemble_hypercube()
     
