@@ -572,10 +572,10 @@ def assemble_hypercube():
 if __name__ == "__main__":
     #stack_on_RHT()
     
-    #nchunks=40
-    #for _bsnum in np.arange(nchunks):
-    #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
-    stack_on_USM()
+    nchunks=40
+    for _bsnum in np.arange(nchunks):
+        stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
+    #stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
