@@ -233,7 +233,10 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                 else:
                     if randomorient:
                         orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
-                        stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
+                        try:
+                            stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
+                        except:
+                            print('i {} did not work: '.format(_ixy), stackslice[smallstarty:smallstopy, :].shape, centerval, orientstackthese.shape)
                     else:
                         stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
                     
@@ -572,10 +575,10 @@ def assemble_hypercube():
 if __name__ == "__main__":
     #stack_on_RHT()
     
-    #nchunks=20
-    #for _bsnum in np.arange(nchunks):
-    #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
-    stack_on_USM()
+    nchunks=40
+    for _bsnum in np.arange(5, nchunks):
+        stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
+    #stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
