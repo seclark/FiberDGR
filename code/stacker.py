@@ -183,6 +183,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
             stopy = np.int(min(maxny, _y + cubehalfy + 1))
             
             RAedgeflag = False
+            DECedgeflag = False
             
             # LH side RA wrap case
             if (_x - cubehalfx) < 0:
@@ -213,6 +214,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
             # Are you sitting on the edge in DEC?
             if (_y - cubehalfy) < 0:
                 smallstarty = cubehalfy - _y 
+                DECedgeflag = True
                 if verbose:
                     print("DEC < smallest DEC")
             else:
@@ -220,6 +222,7 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
             
             if (_y + cubehalfy) > maxny:
                 smallstopy = cubehalfy*2 - (_y + cubehalfy - maxny)
+                DECedgeflag = True
                 if verbose:
                     print("DEC > largest DEC")
             else:
@@ -241,12 +244,18 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                     stackslice[smallstarty:smallstopy, :] += centerval 
                 else:
                     if randomorient:
-                        #orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
-                        orientstackthese = interp_rot90_ntimes_square(stackthese_data[starty:stopy, startx:stopx], orientints[_ixy] )
-                        try:
-                            stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
-                        except:
-                            print('i {} did not work: '.format(_ixy), stackslice[smallstarty:smallstopy, :].shape, centerval, orientstackthese.shape)
+                        
+                        if DECedgeflag == False:
+                            #orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
+                            orientstackthese = interp_rot90_ntimes_square(stackthese_data[starty:stopy, startx:stopx], orientints[_ixy] )
+                            try:
+                                stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
+                            except:
+                                print('i {} did not work: '.format(_ixy), stackslice[smallstarty:smallstopy, :].shape, centerval, orientstackthese.shape)
+                        else:
+                            # if you're on the DEC edge you're not a square so don't try to rotate
+                            stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]  
+                            
                     else:
                         stackslice[smallstarty:smallstopy, :] += centerval * stackthese_data[starty:stopy, startx:stopx]    
                     
