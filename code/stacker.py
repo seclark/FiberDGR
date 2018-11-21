@@ -512,9 +512,9 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False):
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 501#181
+    cubelen = 181
 
-    Narrow=False
+    Narrow=True
     nulltest=False
     randomorient=True
         
