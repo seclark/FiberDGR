@@ -81,6 +81,15 @@ def interp_rotate_square(data, rot_degrees):
     rot_interp_data = scipy.ndimage.interpolation.rotate(filled_data, rot_degrees, reshape=False, mode='nearest')
 
     return rot_interp_data
+    
+def interp_rot90_ntimes_square(data, nrot):
+    """
+    new rotate code that uses rot90 n times
+    """
+    filled_data = interp_data(data)
+    rot_interp_data = np.rot90(filled_data, k=nrot)
+
+    return rot_interp_data
 
 def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 0.91], biastest=False, verbose=False, bootstrapchunks=False, bsnum=0):
     
@@ -232,7 +241,8 @@ def stack_slicedata(stackthese_data, stackon_data, nonzeroy, nonzerox, biastest=
                     stackslice[smallstarty:smallstopy, :] += centerval 
                 else:
                     if randomorient:
-                        orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
+                        #orientstackthese = interp_rotate_square(stackthese_data[starty:stopy, startx:stopx], np.degrees(orientints[_ixy]*(np.pi/2)) )
+                        orientstackthese = interp_rot90_ntimes_square(stackthese_data[starty:stopy, startx:stopx], orientints[_ixy] )
                         try:
                             stackslice[smallstarty:smallstopy, :] += centerval * orientstackthese    
                         except:
@@ -393,7 +403,7 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
         nullteststr = ""
         
     if randomorient:
-        randomorientstr = "_randorient"
+        randomorientstr = "_randorient_rot90" # note: rot90
     else:
         randomorientstr = ""
     
@@ -576,7 +586,7 @@ if __name__ == "__main__":
     #stack_on_RHT()
     
     nchunks=40
-    for _bsnum in np.arange(5, nchunks):
+    for _bsnum in np.arange(nchunks):
         stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
     #stack_on_USM()
     #assemble_hypercube()
