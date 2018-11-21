@@ -594,7 +594,7 @@ def assemble_hypercube():
 if __name__ == "__main__":
     #stack_on_RHT()
     
-    nchunks=40
+    nchunks=20
     for _bsnum in np.arange(nchunks):
         stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
     #stack_on_USM()
