@@ -117,7 +117,7 @@ def prep_stack_on_data(stackon_data, absbcut=False, bcut=[-90, 90], zcut=[0.89, 
         stackon_data[:, :startblockx] = 0
         stackon_data[:, stopblockx:] = 0
         
-        print("Bootstrapping has restricted npix in this block to {} nonzero pixels".format(len(np.nonzero(stackon_data)[0])))
+        print("Bootstrapping has restricted npix in block {} to {} nonzero pixels".format(bsnum, len(np.nonzero(stackon_data)[0])))
     
     # If cutting on RHT intensity
     if biastest is True:
@@ -503,10 +503,10 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False):
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
     datatypelist = ["NHI90", "P3_857"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
-    vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
+    #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    vels=["1024"]
     #vels="NHI"
     
     time0 = time.time()
