@@ -229,7 +229,7 @@ def plot_wedge_figure():
 
     maskbs = make_mask_2d(bstart=30, bstop=90, PS=True)  
     
-    vels6=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
+    vels7=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
     vels6=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
     vels5=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
     vels4=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
@@ -237,7 +237,7 @@ def plot_wedge_figure():
     vels2=["1022", "1023", "1024", "1025", "1026"]
     vels1=["1023", "1024", "1025"]
     vels0=["1024"]
-    allvels = [vels0, vels1, vels2, vels3, vels4, vels5, vels6]
+    allvels = [vels0, vels1, vels2, vels3, vels4, vels5, vels6, vels7]
 
     all_meancutnonzeroP857 = np.zeros(len(allvels)+1)
     all_weightedmeancutnonzeroP857 = np.zeros(len(allvels)+1)
@@ -297,7 +297,7 @@ if __name__ == "__main__":
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
         allblocks.append(_mtest)
         
-    vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
+    vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
 
     allP857blocks = []
