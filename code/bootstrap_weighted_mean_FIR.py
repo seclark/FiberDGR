@@ -297,7 +297,7 @@ if __name__ == "__main__":
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
         allblocks.append(_mtest)
         
-    vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
+    vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
 
     allP857blocks = []
