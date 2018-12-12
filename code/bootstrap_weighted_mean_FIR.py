@@ -297,8 +297,9 @@ if __name__ == "__main__":
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
         allblocks.append(_mtest)
         
-    vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
-    umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
+    vels=["1024"]
+    Narrow = True
+    umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
     allP857blocks = []
     allNHIblocks = []
@@ -327,10 +328,15 @@ if __name__ == "__main__":
         
         BS_meanNHI[_i], BS_meanP857[_i], BS_weightedmeanNHI[_i], BS_weightedmeanP857[_i] = weighted_mean_flatarr(flat_resampledNHI, flat_resampled857, flat_resampledweights)
 
-    np.save('../data/BS_meanNHI_vel{}_to_{}_Nblocks{}_Nsamples{}'.format(vels[0], vels[-1], Nblocks, Nsamples), BS_meanNHI)
-    np.save('../data/BS_meanP857_vel{}_to_{}_Nblocks{}_Nsamples{}'.format(vels[0], vels[-1], Nblocks, Nsamples), BS_meanP857)
-    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_Nblocks{}_Nsamples{}'.format(vels[0], vels[-1], Nblocks, Nsamples), BS_weightedmeanNHI)
-    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_Nblocks{}_Nsamples{}'.format(vels[0], vels[-1], Nblocks, Nsamples), BS_weightedmeanP857)
+    if Narrow:
+        narrowstr = "Narrow_"
+    else:
+        narrowstr = ""
+
+    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
+    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
+    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
+    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
