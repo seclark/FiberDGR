@@ -291,13 +291,21 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 20
+    Nblocks = 10
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
         allblocks.append(_mtest)
         
-    vels=["1024"]
+    #vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
+    #vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
+    #vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
+    #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
+    #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
+    #vels=["1022", "1023", "1024", "1025", "1026"]
+    vels=["1023", "1024", "1025"]
+    #vels=["1024"]
+    
     Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
