@@ -317,7 +317,7 @@ if __name__ == "__main__":
         allNHIblocks.append(nhi90map[np.where(allblocks[_i] > 0)])
         allumaskblocks.append(umask[np.where(allblocks[_i] > 0)])
         
-    Nsamples = 1000000
+    Nsamples = 1000
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
