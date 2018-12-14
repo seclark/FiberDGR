@@ -291,7 +291,7 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 20
+    Nblocks = 10
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
@@ -317,7 +317,7 @@ if __name__ == "__main__":
         allNHIblocks.append(nhi90map[np.where(allblocks[_i] > 0)])
         allumaskblocks.append(umask[np.where(allblocks[_i] > 0)])
         
-    Nsamples = 1000
+    Nsamples = 10000
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
