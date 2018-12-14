@@ -291,7 +291,7 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 10
+    Nblocks = 20
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
