@@ -306,7 +306,7 @@ if __name__ == "__main__":
     #vels=["1023", "1024", "1025"]
     vels=["1024"]
     
-    Narrow = True
+    Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
     allP857blocks = []
