@@ -327,8 +327,6 @@ if __name__ == "__main__":
     
     for _i in np.arange(Nsamples):
         randints = np.random.randint(Nblocks, size=Nblocks)
-        randints = np.arange(Nblocks)
-        print(randints)
         
         resampled857 = [allP857blocks[i] for i in randints]
         flat_resampled857 = np.asarray([item for sublist in resampled857 for item in sublist])
