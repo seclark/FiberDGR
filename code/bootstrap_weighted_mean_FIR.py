@@ -305,8 +305,8 @@ if __name__ == "__main__":
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
-    vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    #vels=["1023", "1024", "1025"]
+    vels=["1024"]
     
     Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
