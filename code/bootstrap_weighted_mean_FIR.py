@@ -70,9 +70,11 @@ def make_mask_2d(bstart=30, bstop=90, PS=False, bootstrapchunks=False, bsnum=0, 
 
         startblockx = np.int(allxcuts[bsnum])
         stopblockx = np.int(allxcuts[bsnum+1])
-    
-        mask[:, :startblockx] = 0
-        mask[:, stopblockx:] = 0
+        if bsnum == bootstrapchunks - 1:
+            mask[:, :startblockx] = 0
+        else:
+            mask[:, :startblockx] = 0
+            mask[:, stopblockx:] = 0
 
     if writemap:
         if LOCAL:
@@ -291,7 +293,7 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 10
+    Nblocks = 20
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
@@ -325,6 +327,8 @@ if __name__ == "__main__":
     
     for _i in np.arange(Nsamples):
         randints = np.random.randint(Nblocks, size=Nblocks)
+        randints = np.arange(Nblocks)
+        print(randints)
         
         resampled857 = [allP857blocks[i] for i in randints]
         flat_resampled857 = np.asarray([item for sublist in resampled857 for item in sublist])
@@ -342,10 +346,10 @@ if __name__ == "__main__":
     else:
         narrowstr = ""
 
-    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
-    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
-    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
-    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
+    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
+    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
+    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
+    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
