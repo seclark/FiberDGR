@@ -6,13 +6,14 @@ import matplotlib
 from astropy.io import fits
 import matplotlib.colors as colors
 import copy
+import time
 
 # local repo imports
 import sys
 sys.path.insert(0, '../../GalfaCuber/code')
 import galfa_vel_helpers as gvh
 
-LOCAL = False
+LOCAL = True
 
 def gaussian_umask(data, fwhm=2, zeroed=False):
     """
@@ -221,6 +222,16 @@ def weighted_mean_flatarr(flatNHI, flat857, flatweights):
     
     return unweighted_NHI_mean, unweighted_857_mean, weighted_NHI_mean, weighted_857_mean
     
+def weighted_mean_arr(NHIarr, P857arr, weightsarr):
+    
+    unweighted_NHI_mean = np.nanmean(NHIarr)
+    unweighted_857_mean = np.nanmean(P857arr)
+    
+    weighted_NHI_mean = np.average(NHIarr, weights=weightsarr)
+    weighted_857_mean = np.average(P857arr, weights=weightsarr)
+    
+    return unweighted_NHI_mean, unweighted_857_mean, weighted_NHI_mean, weighted_857_mean
+    
 def plot_wedge_figure():
     if LOCAL:
         nhi90map = fits.getdata("/Users/susanclark/Dropbox/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
@@ -300,13 +311,13 @@ if __name__ == "__main__":
         allblocks.append(_mtest)
         
     #vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
-    vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
+    #vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
     #vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    vels=["1024"]
     
     Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
@@ -315,19 +326,44 @@ if __name__ == "__main__":
     allNHIblocks = []
     allumaskblocks = []
     for _i in np.arange(Nblocks):
-        allP857blocks.append(p857map[np.where(allblocks[_i] > 0)])
-        allNHIblocks.append(nhi90map[np.where(allblocks[_i] > 0)])
-        allumaskblocks.append(umask[np.where(allblocks[_i] > 0)])
+        selectpix = np.where( (allblocks[_i] > 0) & (p857map > 0) & (nhi90map > 0) & (np.isnan(p857map)==False) & (np.isnan(nhi90map)==False) & (np.isnan(umask)==False) )
+        allP857blocks.append(p857map[selectpix])
+        allNHIblocks.append(nhi90map[selectpix])
+        allumaskblocks.append(umask[selectpix])
         
-    Nsamples = 100000
+        #allP857blocks.append(p857map[np.where(allblocks[_i] > 0)])
+        #allNHIblocks.append(nhi90map[np.where(allblocks[_i] > 0)])
+        #allumaskblocks.append(umask[np.where(allblocks[_i] > 0)])
+        
+    all_block_lens = [len(allP857blocks[_i]) for _i in np.arange(Nblocks)]
+    all_blockP857_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_) 
+    all_blockNHI_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_)
+    all_blockumask_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_)
+    for _i in np.arange(Nblocks):
+        all_blockP857_arr[_i, :all_block_lens[_i]] = allP857blocks[_i]
+        all_blockNHI_arr[_i, :all_block_lens[_i]] = allNHIblocks[_i]
+        all_blockumask_arr[_i, :all_block_lens[_i]] = allumaskblocks[_i]
+    
+    all_block_lens = np.array(all_block_lens)
+        
+    block_unweighted_NHI = np.nansum(all_blockNHI_arr, axis=1)
+    block_unweighted_P857 = np.nansum(all_blockP857_arr, axis=1)
+    block_weighted_NHI = np.nansum(all_blockNHI_arr*all_blockumask_arr, axis=1)
+    block_weighted_P857 = np.nansum(all_blockP857_arr*all_blockumask_arr, axis=1)
+    block_weightsums = np.nansum(all_blockumask_arr, axis=1)
+        
+    Nsamples = 1000
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
     BS_weightedmeanNHI = np.zeros(Nsamples)
     
+    time0 = time.time()
+    
     for _i in np.arange(Nsamples):
-        randints = np.random.randint(Nblocks, size=Nblocks)
-        
+        #randints = np.random.randint(Nblocks, size=Nblocks)
+        randints = np.arange(Nblocks)
+        """
         resampled857 = [allP857blocks[i] for i in randints]
         flat_resampled857 = np.asarray([item for sublist in resampled857 for item in sublist])
         
@@ -338,16 +374,30 @@ if __name__ == "__main__":
         flat_resampledweights = np.asarray([item for sublist in resampledweights for item in sublist])
         
         BS_meanNHI[_i], BS_meanP857[_i], BS_weightedmeanNHI[_i], BS_weightedmeanP857[_i] = weighted_mean_flatarr(flat_resampledNHI, flat_resampled857, flat_resampledweights)
+        """
+        
+        """
+        BS_meanNHI[_i], BS_meanP857[_i], BS_weightedmeanNHI[_i], BS_weightedmeanP857[_i] = weighted_mean_arr(all_blockNHI_arr[randints, :], all_blockP857_arr[randints, :], all_blockumask_arr[randints, :])
+        """
+        
+        BS_meanNHI[_i] = np.nansum(block_unweighted_NHI[randints])/np.sum(all_block_lens[randints])
+        BS_meanP857[_i] = np.nansum(block_unweighted_P857[randints])/np.sum(all_block_lens[randints])
+        BS_weightedmeanNHI[_i] = np.nansum(block_weighted_NHI[randints])/np.sum(block_weightsums[randints])
+        BS_weightedmeanP857[_i] = np.nansum(block_weighted_P857[randints])/np.sum(block_weightsums[randints])
+        
+        
+    time1 = time.time()
+    print("Took {} minutes".format((time1-time0)/60.))
 
     if Narrow:
         narrowstr = "Narrow_"
     else:
         narrowstr = ""
 
-    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
-    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
-    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
-    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
+    #np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
+    #np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
+    #np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
+    #np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
