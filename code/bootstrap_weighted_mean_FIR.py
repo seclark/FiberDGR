@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, '../../GalfaCuber/code')
 import galfa_vel_helpers as gvh
 
-LOCAL = False
+LOCAL = True
 
 def gaussian_umask(data, fwhm=2, zeroed=False):
     """
@@ -304,7 +304,7 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 100
+    Nblocks = 50
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
@@ -319,7 +319,7 @@ if __name__ == "__main__":
     #vels=["1023", "1024", "1025"]
     vels=["1024"]
     
-    Narrow = False
+    Narrow = True
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
     allP857blocks = []
@@ -348,7 +348,7 @@ if __name__ == "__main__":
     block_weighted_P857 = np.nansum(all_blockP857_arr*all_blockumask_arr, axis=1)
     block_weightsums = np.nansum(all_blockumask_arr, axis=1)
         
-    Nsamples = 1000000
+    Nsamples = 10000000
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
@@ -377,6 +377,8 @@ if __name__ == "__main__":
     np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
     np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
     np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
+
+    #BS_deltaNHI = BS_weightedmeanNHI - BS_meanNHI
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
