@@ -304,7 +304,7 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 10
+    Nblocks = 100
     allblocks = []
     for _i in np.arange(Nblocks):
         _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
@@ -331,10 +331,6 @@ if __name__ == "__main__":
         allNHIblocks.append(nhi90map[selectpix])
         allumaskblocks.append(umask[selectpix])
         
-        #allP857blocks.append(p857map[np.where(allblocks[_i] > 0)])
-        #allNHIblocks.append(nhi90map[np.where(allblocks[_i] > 0)])
-        #allumaskblocks.append(umask[np.where(allblocks[_i] > 0)])
-        
     all_block_lens = [len(allP857blocks[_i]) for _i in np.arange(Nblocks)]
     all_blockP857_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_) 
     all_blockNHI_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_)
@@ -352,7 +348,7 @@ if __name__ == "__main__":
     block_weighted_P857 = np.nansum(all_blockP857_arr*all_blockumask_arr, axis=1)
     block_weightsums = np.nansum(all_blockumask_arr, axis=1)
         
-    Nsamples = 1000
+    Nsamples = 1000000
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
@@ -361,24 +357,7 @@ if __name__ == "__main__":
     time0 = time.time()
     
     for _i in np.arange(Nsamples):
-        #randints = np.random.randint(Nblocks, size=Nblocks)
-        randints = np.arange(Nblocks)
-        """
-        resampled857 = [allP857blocks[i] for i in randints]
-        flat_resampled857 = np.asarray([item for sublist in resampled857 for item in sublist])
-        
-        resampledNHI = [allNHIblocks[i] for i in randints]
-        flat_resampledNHI = np.asarray([item for sublist in resampledNHI for item in sublist])
-        
-        resampledweights = [allumaskblocks[i] for i in randints]
-        flat_resampledweights = np.asarray([item for sublist in resampledweights for item in sublist])
-        
-        BS_meanNHI[_i], BS_meanP857[_i], BS_weightedmeanNHI[_i], BS_weightedmeanP857[_i] = weighted_mean_flatarr(flat_resampledNHI, flat_resampled857, flat_resampledweights)
-        """
-        
-        """
-        BS_meanNHI[_i], BS_meanP857[_i], BS_weightedmeanNHI[_i], BS_weightedmeanP857[_i] = weighted_mean_arr(all_blockNHI_arr[randints, :], all_blockP857_arr[randints, :], all_blockumask_arr[randints, :])
-        """
+        randints = np.random.randint(Nblocks, size=Nblocks)
         
         BS_meanNHI[_i] = np.nansum(block_unweighted_NHI[randints])/np.sum(all_block_lens[randints])
         BS_meanP857[_i] = np.nansum(block_unweighted_P857[randints])/np.sum(all_block_lens[randints])
@@ -394,10 +373,10 @@ if __name__ == "__main__":
     else:
         narrowstr = ""
 
-    #np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
-    #np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
-    #np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
-    #np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw2.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
+    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
+    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
+    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
+    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
