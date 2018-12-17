@@ -13,7 +13,7 @@ import sys
 sys.path.insert(0, '../../GalfaCuber/code')
 import galfa_vel_helpers as gvh
 
-LOCAL = True
+LOCAL = False
 
 def gaussian_umask(data, fwhm=2, zeroed=False):
     """
