@@ -45,6 +45,25 @@ def load_pointsources():
         pointsourcemask = fits.getdata("/data/seclark/Planck/HFI_Mask_PointSrc_2048_R2.00_ONGALFAHI.fits")
     
     return pointsourcemask
+    
+def load_bootstrap_data(vstart="1024", vstop="1024", Narrow=False, Nblocks=50, Nsamples=10000000):
+    BS_root = "/Users/susanclark/Projects/FiberDGR/data/bootstrap_data/"
+    
+    if Narrow:
+        narrowstr = "Narrow_"
+    else:
+        narrowstr = ""
+    
+    BS_meanNHI = np.load(BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
+    BS_meanP857 = np.load(BS_root+'BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
+    BS_weightedmeanNHI = np.load(BS_root+'BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
+    BS_weightedmeanP857 = np.load(BS_root+'BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
+    
+    BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
+    perc16 = np.percentile(BS_deltaFIR, 16)
+    perc84 = np.percentile(BS_deltaFIR, 84)
+    
+    return perc16, perc84
         
 def make_mask_2d(bstart=30, bstop=90, PS=False, bootstrapchunks=False, bsnum=0, writemap=False):
     ny = 2432
@@ -261,14 +280,37 @@ def plot_wedge_figure():
     all_meancutwhereNHI = np.zeros(len(allvels)+1)
     all_weightedmeancutwhereNHI = np.zeros(len(allvels)+1)
 
-    narrow_umask = get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=True, reverse=False, writemap=False)
-    all_meancutnonzeroP857[0], all_weightedmeancutnonzeroP857[0], all_meancutnonzeroNHI[0], all_weightedmeancutnonzeroNHI[0], all_meancutwhereP857[0], all_weightedmeancutwhereP857[0], all_meancutwhereNHI[0], all_weightedmeancutwhereNHI[0] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=narrow_umask, mask=maskbs)
+    loaddata=True
+    if loaddata:
+        all_meancutnonzeroP857 = np.load('../data/all_meancutnonzeroP857.npy')
+        all_weightedmeancutnonzeroP857 = np.load('../data/all_weightedmeancutnonzeroP857.npy')
+        all_meancutnonzeroNHI = np.load('../data/all_meancutnonzeroNHI.npy')
+        all_weightedmeancutnonzeroNHI = np.load('../data/all_weightedmeancutnonzeroNHI.npy')
+        
+    else:
+        narrow_umask = get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=True, reverse=False, writemap=False)
+        all_meancutnonzeroP857[0], all_weightedmeancutnonzeroP857[0], all_meancutnonzeroNHI[0], all_weightedmeancutnonzeroNHI[0], all_meancutwhereP857[0], all_weightedmeancutwhereP857[0], all_meancutwhereNHI[0], all_weightedmeancutwhereNHI[0] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=narrow_umask, mask=maskbs)
+
+        for _i, _vels in enumerate(allvels):
+            _i += 1
+            vels_umask = get_USM_slice(vels=_vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
+            all_meancutnonzeroP857[_i], all_weightedmeancutnonzeroP857[_i], all_meancutnonzeroNHI[_i], all_weightedmeancutnonzeroNHI[_i], all_meancutwhereP857[_i], all_weightedmeancutwhereP857[_i], all_meancutwhereNHI[_i], all_weightedmeancutwhereNHI[_i] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=vels_umask, mask=maskbs)
 
 
-    for _i, _vels in enumerate(allvels):
-        _i += 1
-        vels_umask = get_USM_slice(vels=_vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
-        all_meancutnonzeroP857[_i], all_weightedmeancutnonzeroP857[_i], all_meancutnonzeroNHI[_i], all_weightedmeancutnonzeroNHI[_i], all_meancutwhereP857[_i], all_weightedmeancutwhereP857[_i], all_meancutwhereNHI[_i], all_weightedmeancutwhereNHI[_i] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=vels_umask, mask=maskbs)
+    onesigmaerrs = np.zeros((2, len(allvels)+1), np.float_)
+    onesigmaerrs[0, 0], onesigmaerrs[1, 0] = load_bootstrap_data(vstart="1024", vstop="1024", Narrow=True, Nblocks=50, Nsamples=10000000)
+    for _i in np.arange(len(allvels)):
+        startvel = allvels[_i][0]
+        stopvel = allvels[_i][-1]
+        print(startvel, stopvel)
+        try:
+            onesigmaerrs[0, _i+1], onesigmaerrs[1, _i+1] = load_bootstrap_data(vstart=startvel, vstop=stopvel, Narrow=False, Nblocks=50, Nsamples=10000000)
+
+        except:
+            print("Could not load")
+            onesigmaerrs[0, _i+1] = 1.0
+            
+    print(onesigmaerrs)
 
     plt.figure(figsize=(10, 5))
     thicknesses = np.zeros(len(allvels) + 1)
@@ -277,7 +319,11 @@ def plot_wedge_figure():
     thicknesses[1:] = velwidths
 
     delta857 = all_weightedmeancutnonzeroP857 - all_meancutnonzeroP857
-    plt.plot(thicknesses, delta857, 'o', color='teal')
+    onesigmaerrs[0, :] -= delta857
+    onesigmaerrs[1, :] = delta857 - onesigmaerrs[1, :]
+    
+    #plt.plot(thicknesses, delta857, 'o', color='teal')
+    plt.errorbar(thicknesses, delta857, yerr=onesigmaerrs, fmt='o', color='teal', ecolor='lightgray', elinewidth=3, capsize=0);
     plt.xlabel('$\mathrm{Channel}$ $\mathrm{Width}$ [$\mathrm{km/s}$]', size=15)
     plt.ylabel('$\Delta$ $\mathrm{I}_{857}$ [$\mathrm{MJy}$/Sr]', size=15)
     offhi857 = 54
@@ -295,6 +341,7 @@ def plot_wedge_figure():
     plt.fill([thinlim, maxx,maxx], [0, 0, np.max(delta857)], color='C2', alpha=0.1)
     plt.ylim(-0.1, 2)
     plt.xlim(minx, maxx)
+
 
 if __name__ == "__main__":
     if LOCAL:
@@ -315,9 +362,9 @@ if __name__ == "__main__":
     #vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
-    vels=["1022", "1023", "1024", "1025", "1026"]
+    #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    vels=["1024"]
     
     Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
@@ -385,6 +432,7 @@ if __name__ == "__main__":
     perc84 = np.percentile(BS_deltaFIR, 84)
     print("delta FIR 1 sigma error bars from {} to {}".format(perc16, perc84))
     
+
         
         
         
