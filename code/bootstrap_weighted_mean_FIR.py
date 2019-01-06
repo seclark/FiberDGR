@@ -46,26 +46,41 @@ def load_pointsources():
     
     return pointsourcemask
     
-def load_bootstrap_data(vstart="1024", vstop="1024", Narrow=False, Nblocks=50, Nsamples=10000000):
+def load_bootstrap_data(vstart="1024", vstop="1024", bstart=30, NHIcut=True, NHImax=20, Narrow=False, Nblocks=50, Nsamples=10000000, submonopole=None):
     BS_root = "/Users/susanclark/Projects/FiberDGR/data/bootstrap_data/"
     
     if Narrow:
         narrowstr = "Narrow_"
     else:
         narrowstr = ""
+        
+    bstartstr = "_bstart{}".format(bstart)
+        
+    if NHIcut:
+        NHImaxstr = "_NHImax{}".format(NHImax)
+    else:
+        NHImaxstr = ""
+        
+    if submonopole is not None:
+        submonopolestr = "_submono{}".format(submonopole)
+    else:
+        submonopolestr = ""
     
-    BS_meanNHI = np.load(BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
-    BS_meanP857 = np.load(BS_root+'BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
-    BS_weightedmeanNHI = np.load(BS_root+'BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
-    BS_weightedmeanP857 = np.load(BS_root+'BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples))
+    print( BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr) )
+    BS_meanNHI = np.load(BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
+    BS_meanP857 = np.load(BS_root+'BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
+    BS_weightedmeanNHI = np.load(BS_root+'BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
+    BS_weightedmeanP857 = np.load(BS_root+'BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
     
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
     perc84 = np.percentile(BS_deltaFIR, 84)
     
+    print(perc16, perc84)
+    
     return perc16, perc84
         
-def make_mask_2d(bstart=30, bstop=90, PS=False, bootstrapchunks=False, bsnum=0, writemap=False):
+def make_mask_2d(bstart=30, bstop=90, PS=False, NHIcut=False, NHImin=0, NHImax=20, bootstrapchunks=False, bsnum=0, writemap=False, bstype="raonly", negmask=None):
     ny = 2432
     nx = 21600
     mask = np.ones((ny, nx), np.int_)
@@ -81,25 +96,71 @@ def make_mask_2d(bstart=30, bstop=90, PS=False, bootstrapchunks=False, bsnum=0, 
         PSmask = load_pointsources()
         mask[np.where(PSmask < 0.5)] = 0
         
+    if negmask is not None:
+        mask[np.where(negmask < 0)] = 0
+        mask[np.where(np.isnan(negmask) == True)] = 0
+        
+    if NHIcut:
+        if LOCAL:
+            nhi90map = fits.getdata("/Users/susanclark/Dropbox/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
+        else:
+            nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
+
+        nhi90map_div20 = nhi90map/1.E20
+        mask[np.where(nhi90map_div20 > NHImax)] = 0
+        mask[np.where(nhi90map_div20 < NHImin)] = 0
+        mask[np.where(np.isnan(nhi90map_div20) == True)] = 0
+        
     if bootstrapchunks is not False:
         # This code splits the data up into roughly even chunks of the pre-bootstrap mask.
-        mask1d = np.nansum(mask, axis=0)
-        allxcuts = np.zeros(bootstrapchunks+1)
-        for _n in np.arange(bootstrapchunks+1):
-            allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d) - _n*np.nansum(mask)/bootstrapchunks))
+        if bstype == "raonly":
+            mask1d = np.nansum(mask, axis=0)
+            allxcuts = np.zeros(bootstrapchunks+1)
+            for _n in np.arange(bootstrapchunks+1):
+                allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d) - _n*np.nansum(mask)/bootstrapchunks))
 
-        startblockx = np.int(allxcuts[bsnum])
-        stopblockx = np.int(allxcuts[bsnum+1])
-        if bsnum == bootstrapchunks - 1:
-            mask[:, :startblockx] = 0
-        else:
-            mask[:, :startblockx] = 0
-            mask[:, stopblockx:] = 0
+            startblockx = np.int(allxcuts[bsnum])
+            stopblockx = np.int(allxcuts[bsnum+1])
+            if bsnum == bootstrapchunks - 1:
+                mask[:, :startblockx] = 0
+            else:
+                mask[:, :startblockx] = 0
+                mask[:, stopblockx:] = 0
+        
+        # splits into 2 DEC chunks and bootstrapchunks/2 RA chunks
+        elif bstype == "radec":
+            mask1d_split0 = np.nansum(mask[:np.int(ny/2), :], axis=0)
+            mask1d_split1 = np.nansum(mask[np.int(ny/2):, :], axis=0)
+            allxcuts = np.zeros(bootstrapchunks+1)
+            for _n in np.arange(bootstrapchunks+1):
+                if _n < bootstrapchunks/2:
+                    #allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d_split0) - _n*np.nansum(mask)/bootstrapchunks))
+                    allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d_split0) - _n*np.nansum(mask[:np.int(ny/2), :])/(bootstrapchunks/2)))
+                else:
+                    #allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d_split1) - (_n - bootstrapchunks/2)*np.nansum(mask)/bootstrapchunks))
+                     allxcuts[_n] = np.argmin(np.abs(np.cumsum(mask1d_split1) - (_n - bootstrapchunks/2)*np.nansum(mask[np.int(ny/2):, :])/(bootstrapchunks/2)))
+             
+            startblockx = np.int(allxcuts[bsnum])
+            stopblockx = np.int(allxcuts[bsnum+1])
+            if (bsnum == bootstrapchunks - 1) or (bsnum == np.int(bootstrapchunks/2 - 1)):
+                mask[:, :startblockx] = 0
+            else:
+                mask[:, :startblockx] = 0
+                mask[:, stopblockx:] = 0
+            if bsnum < bootstrapchunks/2:
+                mask[np.int(ny/2):, :] = 0
+            else:
+                mask[:np.int(ny/2), :] = 0
+            
 
     if writemap:
         if LOCAL:
             outhdr = fits.getheader("/Users/susanclark/Dropbox/Planck/HFI_Mask_PointSrc_2048_R2.00_ONGALFAHI.fits")
-            outfn = "/Users/susanclark/Dropbox/Planck/mask_GALFA_footprint_absb_gt_{}_lt_{}_HFI_PS_{}.fits".format(bstart, bstop, PS)
+            if NHIcut:
+                outfn = "/Users/susanclark/Dropbox/Planck/mask_GALFA_footprint_absb_gt_{}_lt_{}_NHImin_{}max_{}_HFI_PS_{}.fits".format(bstart, bstop, NHImin, NHImax, PS)
+            else:
+                outfn = "/Users/susanclark/Dropbox/Planck/mask_GALFA_footprint_absb_gt_{}_lt_{}_HFI_PS_{}.fits".format(bstart, bstop, PS)
+                
             fits.writeto(outfn, mask, outhdr)
         else:
             print("Not writing out the file.")
@@ -258,8 +319,18 @@ def plot_wedge_figure():
     else:
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")    
-
-    maskbs = make_mask_2d(bstart=30, bstop=90, PS=True)  
+    
+    submonopole = 0.64
+    if submonopole is not None:
+        p857map -= submonopole
+        submonopolestr = "_submono{}".format(submonopole)
+    else:
+        submonopolestr = ""
+    
+    bstart = 30
+    NHIcut = True
+    NHImax = 8
+    maskbs = make_mask_2d(bstart=bstart, bstop=90, PS=True, NHIcut=NHIcut, NHImax=NHImax)  
     
     vels7=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
     vels6=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
@@ -282,33 +353,47 @@ def plot_wedge_figure():
 
     loaddata=True
     if loaddata:
-        all_meancutnonzeroP857 = np.load('../data/all_meancutnonzeroP857.npy')
-        all_weightedmeancutnonzeroP857 = np.load('../data/all_weightedmeancutnonzeroP857.npy')
-        all_meancutnonzeroNHI = np.load('../data/all_meancutnonzeroNHI.npy')
-        all_weightedmeancutnonzeroNHI = np.load('../data/all_weightedmeancutnonzeroNHI.npy')
+        all_meancutnonzeroP857 = np.load('../data/all_meancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
+        all_weightedmeancutnonzeroP857 = np.load('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
+        all_meancutnonzeroNHI = np.load('../data/all_meancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
+        all_weightedmeancutnonzeroNHI = np.load('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
         
     else:
         narrow_umask = get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=True, reverse=False, writemap=False)
-        all_meancutnonzeroP857[0], all_weightedmeancutnonzeroP857[0], all_meancutnonzeroNHI[0], all_weightedmeancutnonzeroNHI[0], all_meancutwhereP857[0], all_weightedmeancutwhereP857[0], all_meancutwhereNHI[0], all_weightedmeancutwhereNHI[0] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=narrow_umask, mask=maskbs)
+        all_meancutnonzeroP857[0], all_weightedmeancutnonzeroP857[0], all_meancutnonzeroNHI[0], all_weightedmeancutnonzeroNHI[0], all_meancutwhereP857[0], all_weightedmeancutwhereP857[0], all_meancutwhereNHI[0], all_weightedmeancutwhereNHI[0] = weighted_mean(nhi90map, p857map, weightsmap=narrow_umask, mask=maskbs)
 
         for _i, _vels in enumerate(allvels):
             _i += 1
             vels_umask = get_USM_slice(vels=_vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
-            all_meancutnonzeroP857[_i], all_weightedmeancutnonzeroP857[_i], all_meancutnonzeroNHI[_i], all_weightedmeancutnonzeroNHI[_i], all_meancutwhereP857[_i], all_weightedmeancutwhereP857[_i], all_meancutwhereNHI[_i], all_weightedmeancutwhereNHI[_i] = weighted_mean(nhi90map, p857map - 0.64, weightsmap=vels_umask, mask=maskbs)
+            all_meancutnonzeroP857[_i], all_weightedmeancutnonzeroP857[_i], all_meancutnonzeroNHI[_i], all_weightedmeancutnonzeroNHI[_i], all_meancutwhereP857[_i], all_weightedmeancutwhereP857[_i], all_meancutwhereNHI[_i], all_weightedmeancutwhereNHI[_i] = weighted_mean(nhi90map, p857map, weightsmap=vels_umask, mask=maskbs)
+        
+        np.save('../data/all_meancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_meancutnonzeroP857)
+        np.save('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_weightedmeancutnonzeroP857)
+        np.save('../data/all_meancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_meancutnonzeroNHI)
+        np.save('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_weightedmeancutnonzeroNHI)
 
-
+    Nblocks = 10#50
+    #Nsamples = 10000000
+    Nsamples = 10000
     onesigmaerrs = np.zeros((2, len(allvels)+1), np.float_)
-    onesigmaerrs[0, 0], onesigmaerrs[1, 0] = load_bootstrap_data(vstart="1024", vstop="1024", Narrow=True, Nblocks=50, Nsamples=10000000)
+    onesigmaBS = np.zeros((2, len(allvels)+1), np.float_)
+    try:
+        onesigmaerrs[0, 0], onesigmaerrs[1, 0] = load_bootstrap_data(vstart="1024", vstop="1024", bstart=bstart, NHIcut=NHIcut, NHImax=NHImax, Narrow=True, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole)
+    except:
+        print("Could not load.")
+        onesigmaerrs[0] = 1.0
+        
     for _i in np.arange(len(allvels)):
         startvel = allvels[_i][0]
         stopvel = allvels[_i][-1]
         print(startvel, stopvel)
         try:
-            onesigmaerrs[0, _i+1], onesigmaerrs[1, _i+1] = load_bootstrap_data(vstart=startvel, vstop=stopvel, Narrow=False, Nblocks=50, Nsamples=10000000)
+            # perc16, perc84
+            onesigmaBS[0, _i+1], onesigmaBS[1, _i+1] = load_bootstrap_data(vstart=startvel, vstop=stopvel, bstart=bstart, NHIcut=NHIcut, NHImax=NHImax, Narrow=False, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole)
 
         except:
             print("Could not load")
-            onesigmaerrs[0, _i+1] = 1.0
+            onesigmaBS[0, _i+1] = 1.0
             
     print(onesigmaerrs)
 
@@ -319,8 +404,13 @@ def plot_wedge_figure():
     thicknesses[1:] = velwidths
 
     delta857 = all_weightedmeancutnonzeroP857 - all_meancutnonzeroP857
-    onesigmaerrs[0, :] -= delta857
-    onesigmaerrs[1, :] = delta857 - onesigmaerrs[1, :]
+    #onesigmaerrs[0, :] -= delta857
+    #onesigmaerrs[1, :] = delta857 - onesigmaerrs[1, :]
+    onesigmaerrs[1, :] = onesigmaBS[1, :] - delta857
+    onesigmaerrs[0, :] = delta857 - onesigmaBS[0, :]
+    
+    print("delta857: {}".format(delta857))
+    print("onesigmaBS: {}".format(onesigmaBS))
     
     #plt.plot(thicknesses, delta857, 'o', color='teal')
     plt.errorbar(thicknesses, delta857, yerr=onesigmaerrs, fmt='o', color='teal', ecolor='lightgray', elinewidth=3, capsize=0);
@@ -339,8 +429,20 @@ def plot_wedge_figure():
 
     plt.axvline(thinlim, linestyle='dashed', color="gray")
     plt.fill([thinlim, maxx,maxx], [0, 0, np.max(delta857)], color='C2', alpha=0.1)
-    plt.ylim(-0.1, 2)
+    #plt.ylim(-0.1, 2)
+    plt.ylim(-0.1, 0.75)
     plt.xlim(minx, maxx)
+    
+    l2 = np.array((thinlim, 0))
+
+    # Rotate angle
+    angle = (np.max(delta857))/(maxx-thinlim)
+    trans_angle = plt.gca().transData.transform_angles(np.array((angle,)),
+                                                       l2.reshape((1, 2)))[0]
+
+    # Plot text
+    #plt.text(l2[0], l2[1], 'text rotated correctly', fontsize=16,
+    #               rotation=trans_angle, rotation_mode='anchor')
 
 
 if __name__ == "__main__":
@@ -351,20 +453,29 @@ if __name__ == "__main__":
         nhi90map = fits.getdata("/data/seclark/GALFADR2/NHImaps/GALFA-HI_NHISRCORR_VLSR-90+90kms.fits")
         p857map = fits.getdata("/data/seclark/Planck/HFI_SkyMap_857_2048_R3.01_ONGALFAHI.fits")
 
-    Nblocks = 50
+    submonopole = 0.64
+    if submonopole is not None:
+        p857map -= submonopole
+
+    Nblocks = 40#50
+    bstart = 30
+    NHIcut=True
+    NHImax=8
+    NHImin=0
+    bstype="radec"
     allblocks = []
     for _i in np.arange(Nblocks):
-        _mtest = make_mask_2d(bstart=30, bstop=90, PS=True, bootstrapchunks=Nblocks, bsnum=_i)
+        _mtest = make_mask_2d(bstart=bstart, bstop=90, NHIcut=NHIcut, NHImin=NHImin, NHImax=NHImax, PS=True, bootstrapchunks=Nblocks, bsnum=_i, bstype=bstype, negmask=p857map)
         allblocks.append(_mtest)
         
     #vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
     #vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
     #vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
-    #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
+    vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    vels=["1024"]
+    #vels=["1024"]
     
     Narrow = False
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
@@ -379,6 +490,7 @@ if __name__ == "__main__":
         allumaskblocks.append(umask[selectpix])
         
     all_block_lens = [len(allP857blocks[_i]) for _i in np.arange(Nblocks)]
+    print(all_block_lens)
     all_blockP857_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_) 
     all_blockNHI_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_)
     all_blockumask_arr = np.zeros((Nblocks, np.max(all_block_lens)), np.float_)
@@ -388,14 +500,18 @@ if __name__ == "__main__":
         all_blockumask_arr[_i, :all_block_lens[_i]] = allumaskblocks[_i]
     
     all_block_lens = np.array(all_block_lens)
-        
+    
+    print("all_blockNHI_arr shape: {}".format(all_blockNHI_arr.shape))
+    
     block_unweighted_NHI = np.nansum(all_blockNHI_arr, axis=1)
     block_unweighted_P857 = np.nansum(all_blockP857_arr, axis=1)
     block_weighted_NHI = np.nansum(all_blockNHI_arr*all_blockumask_arr, axis=1)
     block_weighted_P857 = np.nansum(all_blockP857_arr*all_blockumask_arr, axis=1)
     block_weightsums = np.nansum(all_blockumask_arr, axis=1)
+    
+    print("block_unweighted_NHI shape: {}".format(block_unweighted_NHI.shape))
         
-    Nsamples = 10000000
+    Nsamples = 1000000#00
     BS_meanP857 = np.zeros(Nsamples)
     BS_weightedmeanP857 = np.zeros(Nsamples)
     BS_meanNHI = np.zeros(Nsamples)
@@ -405,13 +521,21 @@ if __name__ == "__main__":
     
     for _i in np.arange(Nsamples):
         randints = np.random.randint(Nblocks, size=Nblocks)
+        #randints = np.arange(Nblocks)
         
         BS_meanNHI[_i] = np.nansum(block_unweighted_NHI[randints])/np.sum(all_block_lens[randints])
         BS_meanP857[_i] = np.nansum(block_unweighted_P857[randints])/np.sum(all_block_lens[randints])
         BS_weightedmeanNHI[_i] = np.nansum(block_weighted_NHI[randints])/np.sum(block_weightsums[randints])
         BS_weightedmeanP857[_i] = np.nansum(block_weighted_P857[randints])/np.sum(block_weightsums[randints])
         
-        
+    orderedints = np.arange(Nblocks)
+    meanNHI = np.nansum(block_unweighted_NHI[orderedints])/np.sum(all_block_lens[orderedints])
+    meanP857 = np.nansum(block_unweighted_P857[orderedints])/np.sum(all_block_lens[orderedints])
+    weightedmeanNHI = np.nansum(block_weighted_NHI[orderedints])/np.sum(block_weightsums[orderedints])
+    weightedmeanP857 = np.nansum(block_weighted_P857[orderedints])/np.sum(block_weightsums[orderedints])
+    ordered_deltaFIR = weightedmeanP857 - meanP857
+    print("ordered_deltaFIR = {}".format(ordered_deltaFIR))
+            
     time1 = time.time()
     print("Took {} minutes".format((time1-time0)/60.))
 
@@ -419,20 +543,47 @@ if __name__ == "__main__":
         narrowstr = "Narrow_"
     else:
         narrowstr = ""
+        
+    if NHIcut:
+        NHImaxstr = "_NHImin{}_max{}".format(NHImin, NHImax)
+    else:
+        NHImaxstr = ""
+        
+    if submonopole is not None:
+        submonopolestr = "_submono{}".format(submonopole)
+    else:
+        submonopolestr = ""
 
-    np.save('../data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanNHI)
-    np.save('../data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_meanP857)
-    np.save('../data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanNHI)
-    np.save('../data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_allw3.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples), BS_weightedmeanP857)
+    np.save('../data/bootstrap_data/BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_bstart{}{}{}_bstype{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples, bstart, NHImaxstr, submonopolestr, bstype), BS_meanNHI)
+    np.save('../data/bootstrap_data/BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_bstart{}{}{}_bstype{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples, bstart, NHImaxstr, submonopolestr, bstype), BS_meanP857)
+    np.save('../data/bootstrap_data/BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}_bstart{}{}{}_bstype{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples, bstart, NHImaxstr, submonopolestr, bstype), BS_weightedmeanNHI)
+    np.save('../data/bootstrap_data/BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}_bstart{}{}{}_bstype{}.npy'.format(vels[0], vels[-1], narrowstr, Nblocks, Nsamples, bstart, NHImaxstr, submonopolestr, bstype), BS_weightedmeanP857)
 
-    #BS_deltaNHI = BS_weightedmeanNHI - BS_meanNHI
+    BS_deltaNHI = BS_weightedmeanNHI - BS_meanNHI
 
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
     perc84 = np.percentile(BS_deltaFIR, 84)
     print("delta FIR 1 sigma error bars from {} to {}".format(perc16, perc84))
-    
 
-        
-        
+    maskwhole = make_mask_2d(bstart=bstart, bstop=90, NHIcut=NHIcut, NHImin=NHImin, NHImax=NHImax, PS=True, negmask=p857map)
+    print("maskwhole sum = {}".format(np.nansum(maskwhole)))
+    maskwhole[np.where(p857map < 0)] = 0
+    maskwhole[np.where(nhi90map < 0)] = 0
+    maskwhole[np.where(np.isnan(p857map)==True)] = 0
+    maskwhole[np.where(np.isnan(nhi90map)==True)] = 0
+    maskwhole[np.where(np.isnan(umask)==True)] = 0
+    
+    print("{} should equal {}".format(np.nansum(maskwhole), np.nansum(allblocks) ))
+    
+    meancutnonzeroP857, weightedmeancutnonzeroP857, meancutnonzeroNHI, weightedmeancutnonzeroNHI, meancutwhereP857, weightedmeancutwhereP857, meancutwhereNHI, weightedmeancutwhereNHI = weighted_mean(nhi90map, p857map, weightsmap=umask, mask=maskwhole)
+
+    wholesky_deltaFIR = weightedmeancutnonzeroP857 - meancutnonzeroP857 
+    print("wholesky deltaFIR = {}".format(wholesky_deltaFIR))
+    
+    print("am i lopsided? {} vs {}".format(wholesky_deltaFIR-perc16, perc84-wholesky_deltaFIR))
+    #plt.figure()
+    #plt.hist(BS_deltaFIR, bins=100);
+    #plt.vlines(wholesky_deltaFIR, ymin=0, ymax=500)
+    #plt.vlines(ordered_deltaFIR, ymin=0, ymax=400, color='red')
         
