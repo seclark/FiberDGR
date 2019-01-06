@@ -470,16 +470,16 @@ if __name__ == "__main__":
         _mtest = make_mask_2d(bstart=bstart, bstop=90, NHIcut=NHIcut, NHImin=NHImin, NHImax=NHImax, PS=True, bootstrapchunks=Nblocks, bsnum=_i, bstype=bstype, negmask=p857map)
         allblocks.append(_mtest)
         
-    vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
+    #vels=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
     #vels=["1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030"]
     #vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
     #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
-    #vels=["1024"]
+    vels=["1024"]
     
-    Narrow = False
+    Narrow = True
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
     allP857blocks = []
