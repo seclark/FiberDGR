@@ -46,7 +46,7 @@ def load_pointsources():
     
     return pointsourcemask
     
-def load_bootstrap_data(vstart="1024", vstop="1024", bstart=30, NHIcut=True, NHImax=20, Narrow=False, Nblocks=50, Nsamples=10000000, submonopole=None):
+def load_bootstrap_data(vstart="1024", vstop="1024", bstart=30, NHIcut=True, NHImin=0, NHImax=20, Narrow=False, Nblocks=50, Nsamples=10000000, submonopole=None, bstype="radec"):
     BS_root = "/Users/susanclark/Projects/FiberDGR/data/bootstrap_data/"
     
     if Narrow:
@@ -57,7 +57,7 @@ def load_bootstrap_data(vstart="1024", vstop="1024", bstart=30, NHIcut=True, NHI
     bstartstr = "_bstart{}".format(bstart)
         
     if NHIcut:
-        NHImaxstr = "_NHImax{}".format(NHImax)
+        NHImaxstr = "_NHImin{}_max{}".format(NHImin, NHImax)
     else:
         NHImaxstr = ""
         
@@ -66,11 +66,11 @@ def load_bootstrap_data(vstart="1024", vstop="1024", bstart=30, NHIcut=True, NHI
     else:
         submonopolestr = ""
     
-    print( BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr) )
-    BS_meanNHI = np.load(BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
-    BS_meanP857 = np.load(BS_root+'BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
-    BS_weightedmeanNHI = np.load(BS_root+'BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
-    BS_weightedmeanP857 = np.load(BS_root+'BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_allw3.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr))
+    print( BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_bstype{}.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr, bstype) )
+    BS_meanNHI = np.load(BS_root+'BS_meanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_bstype{}.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr, bstype))
+    BS_meanP857 = np.load(BS_root+'BS_meanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_bstype{}.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr, bstype))
+    BS_weightedmeanNHI = np.load(BS_root+'BS_weightedmeanNHI_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_bstype{}.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr, bstype))
+    BS_weightedmeanP857 = np.load(BS_root+'BS_weightedmeanP857_vel{}_to_{}_{}Nblocks{}_Nsamples{}{}{}{}_bstype{}.npy'.format(vstart, vstop, narrowstr, Nblocks, Nsamples, bstartstr, NHImaxstr, submonopolestr, bstype))
     
     BS_deltaFIR = BS_weightedmeanP857 - BS_meanP857
     perc16 = np.percentile(BS_deltaFIR, 16)
@@ -329,7 +329,9 @@ def plot_wedge_figure():
     
     bstart = 30
     NHIcut = True
+    NHImin = 0
     NHImax = 8
+    bstype = "radec"
     maskbs = make_mask_2d(bstart=bstart, bstop=90, PS=True, NHIcut=NHIcut, NHImax=NHImax)  
     
     vels7=["1017", "1018", "1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029", "1030", "1031"]
@@ -353,10 +355,10 @@ def plot_wedge_figure():
 
     loaddata=True
     if loaddata:
-        all_meancutnonzeroP857 = np.load('../data/all_meancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
-        all_weightedmeancutnonzeroP857 = np.load('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
-        all_meancutnonzeroNHI = np.load('../data/all_meancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
-        all_weightedmeancutnonzeroNHI = np.load('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr))
+        all_meancutnonzeroP857 = np.load('../data/all_meancutnonzeroP857_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr))
+        all_weightedmeancutnonzeroP857 = np.load('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr))
+        all_meancutnonzeroNHI = np.load('../data/all_meancutnonzeroNHI_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr))
+        all_weightedmeancutnonzeroNHI = np.load('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr))
         
     else:
         narrow_umask = get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=True, reverse=False, writemap=False)
@@ -367,18 +369,18 @@ def plot_wedge_figure():
             vels_umask = get_USM_slice(vels=_vels, fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False)
             all_meancutnonzeroP857[_i], all_weightedmeancutnonzeroP857[_i], all_meancutnonzeroNHI[_i], all_weightedmeancutnonzeroNHI[_i], all_meancutwhereP857[_i], all_weightedmeancutwhereP857[_i], all_meancutwhereNHI[_i], all_weightedmeancutwhereNHI[_i] = weighted_mean(nhi90map, p857map, weightsmap=vels_umask, mask=maskbs)
         
-        np.save('../data/all_meancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_meancutnonzeroP857)
-        np.save('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_weightedmeancutnonzeroP857)
-        np.save('../data/all_meancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_meancutnonzeroNHI)
-        np.save('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImax{}{}.npy'.format(bstart, NHImax, submonopolestr), all_weightedmeancutnonzeroNHI)
+        np.save('../data/all_meancutnonzeroP857_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr), all_meancutnonzeroP857)
+        np.save('../data/all_weightedmeancutnonzeroP857_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr), all_weightedmeancutnonzeroP857)
+        np.save('../data/all_meancutnonzeroNHI_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr), all_meancutnonzeroNHI)
+        np.save('../data/all_weightedmeancutnonzeroNHI_bstart{}_NHImin{}_max{}{}.npy'.format(bstart, NHImin, NHImax, submonopolestr), all_weightedmeancutnonzeroNHI)
 
-    Nblocks = 10#50
+    Nblocks = 40#50
     #Nsamples = 10000000
-    Nsamples = 10000
+    Nsamples = 1000000
     onesigmaerrs = np.zeros((2, len(allvels)+1), np.float_)
     onesigmaBS = np.zeros((2, len(allvels)+1), np.float_)
     try:
-        onesigmaerrs[0, 0], onesigmaerrs[1, 0] = load_bootstrap_data(vstart="1024", vstop="1024", bstart=bstart, NHIcut=NHIcut, NHImax=NHImax, Narrow=True, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole)
+        onesigmaerrs[0, 0], onesigmaerrs[1, 0] = load_bootstrap_data(vstart="1024", vstop="1024", bstart=bstart, NHIcut=NHIcut, NHImin=NHImin, NHImax=NHImax, Narrow=True, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole, bstype=bstype)
     except:
         print("Could not load.")
         onesigmaerrs[0] = 1.0
@@ -389,7 +391,7 @@ def plot_wedge_figure():
         print(startvel, stopvel)
         try:
             # perc16, perc84
-            onesigmaBS[0, _i+1], onesigmaBS[1, _i+1] = load_bootstrap_data(vstart=startvel, vstop=stopvel, bstart=bstart, NHIcut=NHIcut, NHImax=NHImax, Narrow=False, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole)
+            onesigmaBS[0, _i+1], onesigmaBS[1, _i+1] = load_bootstrap_data(vstart=startvel, vstop=stopvel, bstart=bstart, NHIcut=NHIcut, NHImin=NHImin, NHImax=NHImax, Narrow=False, Nblocks=Nblocks, Nsamples=Nsamples, submonopole=submonopole, bstype=bstype)
 
         except:
             print("Could not load")
@@ -477,7 +479,7 @@ if __name__ == "__main__":
     #vels=["1023", "1024", "1025"]
     vels=["1024"]
     
-    Narrow = False
+    Narrow = True
     umask = get_USM_slice(vels, fwhm=30, zeroed=True, Narrow=Narrow, reverse=False, writemap=False)
 
     allP857blocks = []
