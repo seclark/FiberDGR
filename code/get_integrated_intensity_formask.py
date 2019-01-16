@@ -17,7 +17,7 @@ for _velkey in gvh.galfa_name_dict.keys():
     vel_int = np.int(_velkey)
     
     # get filename for velocity slice
-    vel_fn = gvh.get_galfa_W_name(vel)
+    vel_fn = gvh.get_galfa_W_name(vel_int)
     
     # load velocity slice
     velslice = fits.getdata(vel_root + vel_fn)
