@@ -25,4 +25,8 @@ for _velkey in gvh.galfa_name_dict.keys():
     # save sum of intensity in mask 
     int_emiss_dict[_velkey] = np.nansum(velslice[np.where(mask > 0)])
     
-np.save('/data/seclark/FiberDGR/data/GALFA_HI_Iv_dict_mask_GALFA_footprint_absb_gt_30_lt_90_NHImin_0max_8_HFI_PS_True.npy', int_emiss_dict)
+#np.save('/data/seclark/FiberDGR/data/GALFA_HI_Iv_dict_mask_GALFA_footprint_absb_gt_30_lt_90_NHImin_0max_8_HFI_PS_True.npy', int_emiss_dict)
+
+pkl_fn = '/data/seclark/FiberDGR/data/GALFA_HI_Iv_dict_mask_GALFA_footprint_absb_gt_30_lt_90_NHImin_0max_8_HFI_PS_True.pkl'
+with open(pkl_fn, 'wb') as output:
+    pickle.dump(int_emiss_dict, output)
