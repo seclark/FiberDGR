@@ -11,7 +11,7 @@ mask = fits.getdata('/data/seclark/Planck/mask_GALFA_footprint_absb_gt_30_lt_90_
 vel_root = '/data/seclark/GALFADR2/Wide_maps/'
 
 int_emiss_dict = {}
-for _velkey in galfa_name_dict.keys():
+for _velkey in gvh.galfa_name_dict.keys():
     
     # get integer velocity number
     vel_int = np.int(_velkey)
