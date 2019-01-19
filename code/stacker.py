@@ -497,7 +497,7 @@ def make_RHT_backprojection(startthet=20, stopthet=145):
     fits.writeto("../../Wide_maps/backprojections/RHT_backprojection_velstr_{}_startthet{}_stopthet{}.fits".format(rht_velstr, startthet, stopthet), backproj, NHIhdr)
             
 
-def stack_on_USM(bsnum=0, bootstrapchunks=False):
+def stack_on_USM(bsnum=0, bootstrapchunks=False, random=False):
     biastest=False
     centerweight=True
     bstart=30
@@ -521,9 +521,12 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False):
     # all desired data to be stacked
     #datatypelist = ["COM353", "COM857", "NHI90", "NHI400", "Rad", "P857", "COM545"]#, "Halpha"]
     datatypelist = ["NHI90", "P3_857"]
+    
+    # velocity range
+    vels=["1019", "1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028", "1029"]
     #vels=["1020", "1021", "1022", "1023", "1024", "1025", "1026", "1027", "1028"]
     #vels=["1021", "1022", "1023", "1024", "1025", "1026", "1027"]
-    vels=["1022", "1023", "1024", "1025", "1026"]
+    #vels=["1022", "1023", "1024", "1025", "1026"]
     #vels=["1023", "1024", "1025"]
     #vels=["1024"]
     #vels="NHI"
@@ -533,7 +536,12 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False):
     # find data to stack on
     fwhm_arcmin = 30
     umask_slice_data = get_USM_slice(vels=vels, fwhm=fwhm_arcmin, zeroed=True, Narrow=Narrow, reverse=reverse)
+    if random:
+        randslice = np.random.rand(umask_slice_data.shape[0], umask_slice_data.shape[1])
+        umask_slice_data = gaussian_umask(randslice, fwhm=fwhm_arcmin, zeroed=False)
+    
     nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
+
 
     velstr="{}_{}".format(vels[0], vels[-1])
     
@@ -594,10 +602,10 @@ def assemble_hypercube():
 if __name__ == "__main__":
     #stack_on_RHT()
     
-    nchunks=20
-    for _bsnum in np.arange(nchunks):
-        stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
-    #stack_on_USM()
+    #nchunks=20
+    #for _bsnum in np.arange(nchunks):
+    #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
+    stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
