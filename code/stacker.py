@@ -530,6 +530,7 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False, random=False):
     #vels=["1023", "1024", "1025"]
     #vels=["1024"]
     vels=["1023"]
+    vels=["1023", "1024"]
     #vels="NHI"
     
     time0 = time.time()
@@ -541,7 +542,7 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False, random=False):
         randslice = np.random.rand(umask_slice_data.shape[0], umask_slice_data.shape[1])
         umask_slice_data = gaussian_umask(randslice, fwhm=fwhm_arcmin, zeroed=False)
     
-    nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=False, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
+    nonzeroy, nonzerox = prep_stack_on_data(umask_slice_data, absbcut=absbcut, bcut=[bstart, bstop], zcut=[zstart, zstop], biastest=biastest, verbose=True, bootstrapchunks=bootstrapchunks, bsnum=bsnum)
 
 
     velstr="{}_{}".format(vels[0], vels[-1])
