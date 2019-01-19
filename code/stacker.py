@@ -532,7 +532,8 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False, random=False):
     
     #vels=["1023"]
     #vels=["1023", "1024"]
-    vels=["1022", "1023", "1024", "1025"]
+    #vels=["1022", "1023", "1024", "1025"]
+    vels=["1021", "1022", "1023", "1024", "1025", "1026"]
     #vels="NHI"
     
     time0 = time.time()
