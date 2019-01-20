@@ -428,7 +428,7 @@ def get_slice_fn_USM(fwhm, chanstr, cubetype="nhi", biastest=False, centerweight
 def stack_on_RHT():
     biastest=False
     centerweight=True
-    bstart=60
+    bstart=30
     bstop=90
     absbcut=True
 
@@ -439,17 +439,18 @@ def stack_on_RHT():
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 101
+    cubelen = 181
     
-    bootstrapchunks = 40
+    bootstrapchunks = False
     bsnum = 0
         
     # all desired data to be stacked
-    datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "COM353", "COM857"] #"Tau353", 
+    #datatypelist = ["NHI90", "NHI400", "Rad", "P857", "COM545", "Halpha", "COM353", "COM857"] #"Tau353", 
+    datatypelist = ["NHI90", "P3_857"]
             
-    for _v in [9]: # of 21
+    for _v in [10]: # of 21
         print("running velocity {}".format(_v))
-        for _thet in np.arange(0, 165): # of 165
+        for _thet in [0, 1]:#np.arange(0, 165): # of 165
         
             slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
         
@@ -608,12 +609,12 @@ def assemble_hypercube():
     
 
 if __name__ == "__main__":
-    #stack_on_RHT()
+    stack_on_RHT()
     
     #nchunks=20
     #for _bsnum in np.arange(nchunks):
     #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
-    stack_on_USM()
+    #stack_on_USM()
     #assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
