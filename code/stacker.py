@@ -439,7 +439,7 @@ def stack_on_RHT():
         zstart = 0.7
         zstop = 1.0
         
-    cubelen = 181
+    cubelen = 101
     
     bootstrapchunks = False
     bsnum = 0
