@@ -338,7 +338,7 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=False, Narrow=False, reverse=Fa
     
     return umask_slice_data
     
-def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0):
+def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=True, bstart=30, bstop=90, zstart=0.7, zstop=1.0, extrastr=""):
     if absbcut:
         absbcut_str = "absb_"
     else:
@@ -350,10 +350,10 @@ def get_hcube_fn_RHT(cubetype="nhi", biastest=False, centerweight=True, absbcut=
         centervalstr = ""
     
     if biastest is False:
-        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr)
+        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, centervalstr, extrastr)
         
     if biastest is True:
-        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr)
+        hcube_fn = "../hcubes/hypercube_{}_{}bstart_{}_bstop_{}_zstart_{}_zstop_{}{}{}.npy".format(cubetype, absbcut_str, bstart, bstop, zstart, zstop, centervalstr, extrastr)
     
     return hcube_fn
 
@@ -578,7 +578,7 @@ def stack_on_USM(bsnum=0, bootstrapchunks=False, random=False):
 def assemble_hypercube():
     biastest=False
     centerweight=True
-    bstart=60
+    bstart=30
     bstop=90
     absbcut=True
 
@@ -589,33 +589,33 @@ def assemble_hypercube():
         zstart = 0.7
         zstop = 1.0
     
-    vels = [9, 10, 11]
+    vels = [10]
     hcube = HyperCube(nx=101, ny=101, nvel=len(vels), ntheta=165)
     
     #datatypelist = ["NHI90", "NHI400", "Rad", "P857"]
-    datatypelist=["weights"]
+    datatypelist=["P3_857", "NHI90", "weights"]
     for _datatype in datatypelist:
         
         for _v in vels:
             for _thet in np.arange(0, 165): # of 165
             
-                slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype="nhi", biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+                slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
             
                 if os.path.isfile(slice_fn):
                     hcube[:, :, _v, _thet] = np.load(slice_fn)
         
-        hcube_fn = get_hcube_fn_RHT(cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
+        hcube_fn = get_hcube_fn_RHT(cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, extrastr="_nv1")
         np.save(hcube_fn, hcube)
     
 
 if __name__ == "__main__":
-    stack_on_RHT()
+    #stack_on_RHT()
     
     #nchunks=20
     #for _bsnum in np.arange(nchunks):
     #    stack_on_USM(bsnum=_bsnum, bootstrapchunks=nchunks)
     #stack_on_USM()
-    #assemble_hypercube()
+    assemble_hypercube()
     
     #make_RHT_backprojection(startthet=20, stopthet=145)
     #get_USM_slice(vels=["1024"], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True)
