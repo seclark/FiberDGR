@@ -596,13 +596,13 @@ def assemble_hypercube():
     datatypelist=["P3_857", "NHI90", "weights"]
     for _datatype in datatypelist:
         
-        for _v in vels:
+        for _v_i, _v in enumerate(vels):
             for _thet in np.arange(0, 165): # of 165
             
                 slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
             
                 if os.path.isfile(slice_fn):
-                    hcube[:, :, _v, _thet] = np.load(slice_fn)
+                    hcube[:, :, _v_i, _thet] = np.load(slice_fn)
         
         hcube_fn = get_hcube_fn_RHT(cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, extrastr="_nv1")
         np.save(hcube_fn, hcube)
