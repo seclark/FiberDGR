@@ -590,7 +590,11 @@ def assemble_hypercube():
         zstop = 1.0
     
     vels = [10]
-    hcube = HyperCube(nx=101, ny=101, nvel=len(vels), ntheta=165)
+    #hcube = HyperCube(nx=101, ny=101, nvel=len(vels), ntheta=165)
+    if len(vels) > 1:
+        hcube = np.zeros((nx, ny, nvel, ntheta), np.float_)
+    else:
+        hcube = np.zeros((nx, ny, ntheta), np.float_) 
     
     #datatypelist = ["NHI90", "NHI400", "Rad", "P857"]
     datatypelist=["P3_857", "NHI90", "weights"]
@@ -602,7 +606,10 @@ def assemble_hypercube():
                 slice_fn = get_slice_fn_v_theta(_v, _thet, cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop)
             
                 if os.path.isfile(slice_fn):
-                    hcube[:, :, _v_i, _thet] = np.load(slice_fn)
+                    if len(vels) > 1:
+                        hcube[:, :, _v_i, _thet] = np.load(slice_fn)
+                    else:
+                        hcube[:, :, _thet] = np.load(slice_fn)
         
         hcube_fn = get_hcube_fn_RHT(cubetype=_datatype, biastest=biastest, centerweight=centerweight, absbcut=absbcut, bstart=bstart, bstop=bstop, zstart=zstart, zstop=zstop, extrastr="_nv1")
         np.save(hcube_fn, hcube)
