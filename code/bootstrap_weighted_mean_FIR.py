@@ -268,7 +268,10 @@ def get_USM_slice(vels=["1024"], fwhm=10, zeroed=True, Narrow=False, reverse=Fal
         else:
             NWstr = "W"
             narrowstr = ""
-            DR2_slice_root = "/Users/susanclark/Dropbox/DR2 Full Sky Wide Maps/"
+            if LOCAL:
+                DR2_slice_root = "/Users/susanclark/Dropbox/DR2 Full Sky Wide Maps/"
+            else:
+                DR2_Wide_slice_root = "/data/seclark/GALFADR2/Wide_maps/"
         if addnoise:
             noisestr = "_addnoise"
             if noisefactor > 1:
