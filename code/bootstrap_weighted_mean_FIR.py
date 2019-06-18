@@ -29,7 +29,7 @@ import sys
 sys.path.insert(0, '../../GalfaCuber/code')
 import galfa_vel_helpers as gvh
 
-sys.path.insert(0, '/Users/susanclark/Projects/FITSHandling/code')
+sys.path.insert(0, '../../FITSHandling/code')
 import cutouts
 
 LOCAL = False
