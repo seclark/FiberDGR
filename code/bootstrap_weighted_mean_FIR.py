@@ -14,7 +14,7 @@ from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
 import copy
 import time
-import cmocean
+#import cmocean
 import colorcet as cc
 import colorsys
 import os.path
