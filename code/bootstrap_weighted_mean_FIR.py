@@ -15,8 +15,8 @@ from matplotlib.collections import PatchCollection
 import copy
 import time
 #import cmocean
-import colorcet as cc
-import colorsys
+#import colorcet as cc
+#import colorsys
 import os.path
 import h5py
 
@@ -3099,7 +3099,8 @@ if __name__ == "__main__":
             _velstr = str(0)+str(_vel)
         else:
             _velstr = str(_vel)
-        get_USM_slice(vels=[_velstr], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True, returnrawslice=False, addnoise=False, noisefactor=1)
-    
+        uslice = get_USM_slice(vels=[_velstr], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=True, returnrawslice=False, addnoise=False, noisefactor=1)
+        
+        
     
         
