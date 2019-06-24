@@ -3124,6 +3124,7 @@ if __name__ == "__main__":
             outhdr= fits.getheader(DR2_slice_root+"GALFA_HI_W_S1024_V0000.4kms.fits")
             fits.writeto(outfn, umask_tot, outhdr)
             count = 0
+            umask_tot = np.zeros((ny, nx), np.float_)
         else:
             count += 1
         
