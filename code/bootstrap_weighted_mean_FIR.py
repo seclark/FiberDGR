@@ -3101,7 +3101,7 @@ if __name__ == "__main__":
     
     ny = 2432
     nx = 21600
-    umask_tot = np.ones((ny, nx), np.int_)
+    umask_tot = np.zeros((ny, nx), np.float_)
     
     count = 0
 
