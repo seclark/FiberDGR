@@ -3118,7 +3118,7 @@ if __name__ == "__main__":
         
         if count == 0:
             start_vel = copy.copy(_vel)
-        if count == 6:
+        if count == 4:#6:
             stop_vel = copy.copy(_vel)
             outfn = DR2_slice_root+"GALFA_HI_W_sumUSM_vels{}_to_{}_USM30_zeroed_True.fits".format(start_vel, stop_vel)
             outhdr= fits.getheader(DR2_slice_root+"GALFA_HI_W_S1024_V0000.4kms.fits")
