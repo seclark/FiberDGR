@@ -3099,6 +3099,8 @@ if __name__ == "__main__":
     
     DR2_slice_root = "/data/seclark/GALFADR2/Wide_maps/"
     
+    zeroed = False
+    
     ny = 2432
     nx = 21600
     umask_tot = np.zeros((ny, nx), np.float_)
@@ -3112,7 +3114,7 @@ if __name__ == "__main__":
             _velstr = str(0)+str(_vel)
         else:
             _velstr = str(_vel)
-        uslice = get_USM_slice(vels=[_velstr], fwhm=30, zeroed=True, Narrow=False, reverse=False, writemap=False, returnrawslice=False, addnoise=False, noisefactor=1)
+        uslice = get_USM_slice(vels=[_velstr], fwhm=30, zeroed=zeroed, Narrow=False, reverse=False, writemap=False, returnrawslice=False, addnoise=False, noisefactor=1)
         
         umask_tot += uslice
         
@@ -3120,7 +3122,7 @@ if __name__ == "__main__":
             start_vel = copy.copy(_vel)
         if count == 4:#6:
             stop_vel = copy.copy(_vel)
-            outfn = DR2_slice_root+"GALFA_HI_W_sumUSM_vels{}_to_{}_USM30_zeroed_True.fits".format(start_vel, stop_vel)
+            outfn = DR2_slice_root+"GALFA_HI_W_sumUSM_vels{}_to_{}_USM30_zeroed_{}.fits".format(start_vel, stop_vel, zeroed)
             outhdr= fits.getheader(DR2_slice_root+"GALFA_HI_W_S1024_V0000.4kms.fits")
             fits.writeto(outfn, umask_tot, outhdr)
             count = 0
